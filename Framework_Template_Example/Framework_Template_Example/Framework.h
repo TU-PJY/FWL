@@ -17,9 +17,10 @@ public:
 extern clock_t start_time, end_time;  // 게임 루프에 소요되는 시간 측정
 extern double ft;                     // 프레임 타임
 
-// 직관적인 구분을 위해 __function()__ 형태 사용
-void __routine__();                             // 전체 게임 루프
+// 프레임워크 관련 함수는 fw_function() 형태 사용
+void fw_routine();                             // 전체 게임 루프
 
-void __add__(Framework*&& object, int layer);   // 게임 오브젝트 추가
-void __delete__(Framework* object, int layer);  // 게임 오브젝트 삭제
-void __sweep__();                               // 모든 게임 오브젝트 삭제
+void fw_add(Framework*&& object, int layer);   // 게임 오브젝트 추가
+void fw_delete(Framework* object, int layer);  // 게임 오브젝트 삭제
+void fw_sweep_layer(int layer);                // 특정 레이어의 모든 게임 오브젝트 삭제
+void fw_sweep_all();                               // 모든 게임 오브젝트 삭제

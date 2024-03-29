@@ -1,6 +1,6 @@
 #pragma once
 #include "Header.h"
-#define LAYER 3
+#define LAYER 1
 
 
 class Framework {
@@ -14,7 +14,8 @@ public:
 extern clock_t start_time, end_time;
 extern double ft;
 
-void __routine__();
-void __add__(Framework*&& object, int layer);
-void __delete__(Framework* object, int layer);
-void __sweep__();
+void fw_routine();
+void fw_add(Framework*&& object, int layer);
+void fw_delete(Framework* object, int layer);
+void fw_sweep_layer(int layer);
+void fw_sweep();

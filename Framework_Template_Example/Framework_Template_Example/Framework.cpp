@@ -10,7 +10,7 @@ double ft;                     // 프레임 타임
 
 
 // 전체 게임 루프 (예: 출력, 이동 등...)
-void __routine__() {
+void fw_routine() {
 
     // 게임 루프 소요시간 측정 시작
 	start_time = clock();  	
@@ -25,7 +25,7 @@ void __routine__() {
 				ptr->render();
 				ptr->check_collision();
 
-				// 각 객체의 update() 함수에서 __delete()__ 함수가 실행되기 때문에 반드시 가장 마지막에 실행되어야 함
+				// 각 객체의 update() 함수에서 fw_delete() 함수가 실행되기 때문에 반드시 가장 마지막에 실행되어야 함
 				// 삭제된 객체 참조를 방지하기 위함
 				ptr->update();	
 
@@ -48,13 +48,13 @@ void __routine__() {
 
 
 // 게임 오브젝트 추가
-void __add__(Framework*&& object, int layer) {
+void fw_add(Framework*&& object, int layer) {
 	framework[layer].push_back(object);
 }
 
 
 // 게임 오브젝트 삭제
-void __delete__(Framework* object, int layer) {
+void fw_delete(Framework* object, int layer) {
 
 	// 게임 오브젝트가 정말로 존재하는지 확인
 	auto target = std::find(framework[layer].begin(), framework[layer].end(), object);
@@ -65,16 +65,28 @@ void __delete__(Framework* object, int layer) {
 		delete* target; 
 
 		// 오브젝트는 더 이상 존재하지 않음
-		// 남은 프레임워크 인덱스는 __routine__()함수에서 삭제함
+		// 남은 프레임워크 인덱스는 fw_routine() 함수에서 삭제함
 		*target = nullptr;
+	}
+} 
+
+
+// 특정 레이어의 모든 게임 오브젝트 삭제
+void fw_sweep_layer(int layer) {
+	for (auto it = framework[layer].begin(); it != framework[layer].end();) {
+		auto& ptr = *it;
+		auto target = std::find(framework[layer].begin(), framework[layer].end(), ptr);
+
+		delete* target;
+		*target = nullptr;
+
+		it++;
 	}
 }
 
 
 // 모든 게임 오브젝트 삭제
-void __sweep__() {
-
-	// 모든 레이어의 게임 오브젝트들을 삭제
+void fw_sweep_all() {
 	for (int i = 0; i < framework.size(); i++) {
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
 			auto& ptr = *it;
