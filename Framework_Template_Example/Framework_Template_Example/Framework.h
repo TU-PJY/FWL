@@ -11,6 +11,8 @@ public:
 	virtual void render() {}          // 게임 오브젝트 출력
 	virtual void check_collision() {} // 게임 오브젝트 충돌 처리
 	virtual void update() {}          // 게임 오브젝트 업데이트
+
+	virtual ~Framework() {}           //소멸자, Framework를 통해 객체의 소멸자를 호출함
 };
 
 

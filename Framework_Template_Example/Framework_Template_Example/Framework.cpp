@@ -17,6 +17,12 @@ void fw_routine() {
 
 	// 하위 레이어부터 순서대로 오브젝트 코드를 실행함
 	for(int i = 0; i < framework.size(); i ++) {
+
+		// 한 레이어를 방문할 때마다 레이어가 가지는 벡터에 필요 이상으로 메모리가 할당되었는지 확인
+		// 메모리 할당량을 최소한으로 줄인다.
+		if(framework[i].size() < framework[i].capacity())
+			framework[i].shrink_to_fit();
+
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
 			auto& ptr = *it;
 
@@ -34,7 +40,7 @@ void fw_routine() {
 
 			// 객체가 존재하지 않는다면 해당 객체가 있던 벡터 인덱스를 삭제
 			// 뒤의 모든 인덱스들이 앞으로 밀리기 때문에 삭제 후 자동으로 다음 인덱스 순서가 됨
-			else
+			else 
 				it = framework[i].erase(it);
 		}
 	}

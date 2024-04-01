@@ -35,6 +35,10 @@ public:
 		std::cout << "added Human " << type << std::endl;
 	}
 
+	~Human() {
+		std::cout << "deleted Human " << type << std::endl << std::endl;
+	}
+
 	// Framework class로부터 상속받아 해당 클래스에서 재정의
 	virtual void render() {
 		std::cout << "updated Human " << type << "   " << cnt << " times" << std::endl;
@@ -54,11 +58,8 @@ public:
 
 		// cnt가 num보다 크면 객체 스스로를 삭제
 		// 특정 조건에 객체 스스로를 삭제한다.
-		// 외부 함수에서 삭제하는 것이기 때문에 파괴자가 실행되지 않음에 유의
-		if (cnt > num) { 
-			std::cout << "deleted Human " << type << std::endl << std::endl;
+		if (cnt > num) 
 			fw_delete(this, layer);  
-		}
 	}
 };
 
@@ -81,6 +82,9 @@ public:
 		std::cout << "added Monster " << type << std::endl;
 	}
 
+	~Monster() {
+		std::cout << "deleted Monster " << type << std::endl << std::endl;
+	}
 
 	virtual void render() {
 		std::cout << "updated Monster " << type << "   " << cnt << " times" << std::endl;
@@ -95,9 +99,8 @@ public:
 
 		Sleep(100);
 
-		if (cnt > num) {
-			std::cout << "deleted Monster " << type << std::endl << std::endl;
+		if (cnt > num) 
 			fw_delete(this, layer);
-		}
+		
 	}
 };
