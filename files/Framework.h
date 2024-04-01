@@ -8,6 +8,8 @@ public:
 	virtual void render() {}
 	virtual void check_collision() {}
 	virtual void update() {}
+	
+	virtual ~Framework() {}
 };
 
 

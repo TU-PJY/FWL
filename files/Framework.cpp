@@ -11,6 +11,9 @@ void fw_routine() {
 	start_time = clock();  	
 
 	for(int i = 0; i < framework.size(); i ++) {
+		if(framework[i].size() < framework[i].capacity())
+			framework[i].shrink_to_fit();
+		
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
 			auto& ptr = *it;
 
