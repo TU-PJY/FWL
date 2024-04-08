@@ -58,8 +58,8 @@ void fw_add(Framework*&& object, int layer) {
 }
 
 
-// 다른 레이어에 존재하는 오브젝트 포인터 추적 설정
-// 예: 특정 레이어의 있는 특정 오브젝트의 위치를 얻어야 하는 경우
+// 다른 레이어에 존재하는 오브젝트 인덱스 추적 설정
+// 예: 특정 레이어에 있는 특정 오브젝트의 위치를 얻어야 하는 경우
 Framework* fw_set_tracking(int layer, int index) {
 	if (index >= framework[layer].size())
 		return nullptr;
@@ -68,7 +68,7 @@ Framework* fw_set_tracking(int layer, int index) {
 }
 
 
-// 다른 레이어에 존재하는 오브젝트 포인터 추적 유효성 검사
+// 다른 레이어에 존재하는 오브젝트 인덱스 추적 유효성 검사
 bool fw_check_tracking_valid(int layer, int index) {
 	if (index >= framework[layer].size())
 		return false;
