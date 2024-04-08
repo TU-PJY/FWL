@@ -16,11 +16,10 @@ void fw_routine() {
 	start_time = clock();  	
 
 	// 하위 레이어부터 순서대로 오브젝트 코드를 실행함
-	for(int i = 0; i < framework.size(); i ++) {
+	for(int i = 0; i < LAYER; ++i) {
 
-		// 한 레이어를 방문할 때마다 레이어가 가지는 벡터에 필요 이상으로 메모리가 할당되었는지 확인
-		// 메모리 할당량을 최소한으로 줄인다.
-		if(framework[i].size() < framework[i].capacity())
+		// 메모리가 과하게 할당되어있을 경우 할당량 최적화
+		if (framework[i].size() * 2 < framework[i].capacity())
 			framework[i].shrink_to_fit();
 
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
@@ -59,6 +58,31 @@ void fw_add(Framework*&& object, int layer) {
 }
 
 
+// 다른 레이어에 존재하는 오브젝트 포인터 추적 설정
+// 예: 특정 레이어의 모든 오브젝트들의 위치를 얻어야 하는 경우
+Framework* fw_set_tracking(int layer, int index) {
+	if (index >= framework[layer].size())
+		return nullptr;
+	else
+		return framework[layer][index];
+}
+
+
+// 다른 레이어에 존재하는 오브젝트 포인터 추적 유효성 검사
+bool fw_check_tracking_valid(int layer, int index) {
+	if (index >= framework[layer].size())
+		return false;
+	else
+		return true;
+}
+
+
+// 특정 레이어에 존재하는 오브젝트 수 리턴
+int fw_layer_size(int layer) {
+	return framework[layer].size();
+}
+
+
 // 게임 오브젝트 삭제
 void fw_delete(Framework* object, int layer) {
 
@@ -86,7 +110,7 @@ void fw_sweep_layer(int layer) {
 		delete* target;
 		*target = nullptr;
 
-		it++;
+		++it;
 	}
 }
 
@@ -101,7 +125,7 @@ void fw_sweep_all() {
 			delete* target;
 			*target = nullptr;
 
-			it++;
+			++it;
 		}
 	}
 }

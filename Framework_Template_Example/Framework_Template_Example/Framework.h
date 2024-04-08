@@ -23,6 +23,9 @@ extern double ft;                     // 프레임 타임
 void fw_routine();                             // 전체 게임 루프
 
 void fw_add(Framework*&& object, int layer);   // 게임 오브젝트 추가
+Framework* fw_set_tracking(int layer, int index);
+bool fw_check_tracking_valid(int layer, int index);
+int fw_layer_size(int layer);
 void fw_delete(Framework* object, int layer);  // 게임 오브젝트 삭제
 void fw_sweep_layer(int layer);                // 특정 레이어의 모든 게임 오브젝트 삭제
 void fw_sweep_all();                               // 모든 게임 오브젝트 삭제
