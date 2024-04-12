@@ -11,7 +11,7 @@ void fw_routine() {
 	start_time = clock();  	
 
 	for(int i = 0; i < LAYER; ++i) {
-		if (framework[i].size() * 2 < framework[i].capacity())
+		if (OPT_OPTIMIZING && (framework[i].size() * 2 < framework[i].capacity()))
 			framework[i].shrink_to_fit();
 			
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
@@ -74,8 +74,7 @@ void fw_delete(Framework* object, int layer) {
 
 void fw_sweep_layer(int layer) {
 	for (auto it = framework[layer].begin(); it != framework[layer].end();) {
-		auto& ptr = *it;
-		auto target = std::find(framework[layer].begin(), framework[layer].end(), ptr);
+		auto target = std::find(framework[layer].begin(), framework[layer].end(), *it);
 
 		delete* target;
 		*target = nullptr;
@@ -86,10 +85,9 @@ void fw_sweep_layer(int layer) {
 
 
 void fw_sweep() {
-	for (int i = 0; i < framework.size(); i++) {
+	for (int i = 0; i < LAYER; i++) {
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
-			auto& ptr = *it;
-			auto target = std::find(framework[i].begin(), framework[i].end(), ptr);
+			auto target = std::find(framework[i].begin(), framework[i].end(), *it);
 
 			delete* target;
 			*target = nullptr;

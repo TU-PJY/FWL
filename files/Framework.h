@@ -1,6 +1,9 @@
 #pragma once
 #include "Header.h"
-#define LAYER 1
+
+
+#define          LAYER 1
+#define          OPT_OPTIMIZING false
 
 
 class Framework {
@@ -17,6 +20,7 @@ extern           clock_t start_time, end_time;
 extern double    ft;
 
 void             fw_routine();
+
 void             fw_add(Framework*&& object, int layer);
 Framework*       fw_set_tracking(int layer, int index);
 bool             fw_check_tracking_valid(int layer, int index);

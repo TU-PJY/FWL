@@ -19,7 +19,8 @@ void fw_routine() {
 	for(int i = 0; i < LAYER; ++i) {
 
 		// 메모리가 과하게 할당되어있을 경우 할당량 최적화
-		if (framework[i].size() * 2 < framework[i].capacity())
+		// 옵션 활성화 시에만 실행
+		if (OPT_OPTIMIZING && (framework[i].size() * 2 < framework[i].capacity()))
 			framework[i].shrink_to_fit();
 
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
@@ -59,8 +60,10 @@ void fw_add(Framework*&& object, int layer) {
 
 
 // 다른 레이어에 존재하는 오브젝트 인덱스 추적 설정
-// 예: 특정 레이어에 있는 특정 오브젝트의 위치를 얻어야 하는 경우
+// 특정 레이어의 특정 번호의 인덱스만 고정적으로 추적한다.
 Framework* fw_set_tracking(int layer, int index) {
+
+	// 존재하지 않는 레이어를 추적 설정할 경우 nullptr을 리턴한다
 	if (index >= framework[layer].size())
 		return nullptr;
 	else
@@ -70,6 +73,8 @@ Framework* fw_set_tracking(int layer, int index) {
 
 // 다른 레이어에 존재하는 오브젝트 인덱스 추적 유효성 검사
 bool fw_check_tracking_valid(int layer, int index) {
+
+	// 더 이상 가리킬 특정 레이어의 인덱스가 존재하지 않으면 false, 존재하면 true를 리턴한다
 	if (index >= framework[layer].size())
 		return false;
 	else
@@ -104,8 +109,7 @@ void fw_delete(Framework* object, int layer) {
 // 특정 레이어의 모든 게임 오브젝트 삭제
 void fw_sweep_layer(int layer) {
 	for (auto it = framework[layer].begin(); it != framework[layer].end();) {
-		auto& ptr = *it;
-		auto target = std::find(framework[layer].begin(), framework[layer].end(), ptr);
+		auto target = std::find(framework[layer].begin(), framework[layer].end(), *it);
 
 		delete* target;
 		*target = nullptr;
@@ -117,10 +121,9 @@ void fw_sweep_layer(int layer) {
 
 // 모든 게임 오브젝트 삭제
 void fw_sweep_all() {
-	for (int i = 0; i < framework.size(); i++) {
+	for (int i = 0; i < LAYER; i++) {
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
-			auto& ptr = *it;
-			auto target = std::find(framework[i].begin(), framework[i].end(), ptr);
+			auto target = std::find(framework[i].begin(), framework[i].end(), *it);
 
 			delete* target;
 			*target = nullptr;
