@@ -20,28 +20,31 @@ void fw_routine() {
 
 		// 메모리가 과하게 할당되어있을 경우 할당량 최적화
 		// 옵션 활성화 시에만 실행
-		if (OPT_OPTIMIZING && (framework[i].size() * 2 < framework[i].capacity()))
+		#ifdef OPT_OPTIMIZING
+		if (framework[i].size() * 2 < framework[i].capacity())
 			framework[i].shrink_to_fit();
+		#endif
 
 		for (auto it = framework[i].begin(); it != framework[i].end();) {
 			auto& ptr = *it;
 
 			// 객체가 존재하면 오브젝트 코드를 실행
 			if (ptr != nullptr) {
-				ptr->render();
+				ptr->update();
 				ptr->check_collision();
+				ptr->render();
 
-				// 각 객체의 update() 함수에서 fw_delete() 함수가 실행되기 때문에 반드시 가장 마지막에 실행되어야 함
-				// 삭제된 객체 참조를 방지하기 위함
-				ptr->update();	
+				// 삭제 플래그 검사
+				// 반드시 check_delete_flag()를 통해 삭제할 것, 이외의 함수에서 삭제 시 오류가 발생할 수 있음
+				ptr->check_delete_flag();
 
 				++it;  // 반복자 증가
 			}
 
 			// 객체가 존재하지 않는다면 해당 객체가 있던 벡터 인덱스를 삭제
 			// 뒤의 모든 인덱스들이 앞으로 밀리기 때문에 삭제 후 자동으로 다음 인덱스 순서가 됨
-			else 
-				it = framework[i].erase(it);
+			else
+				it = framework[i].erase(remove(framework[i].begin(), framework[i].end(), ptr));
 		}
 	}
 

@@ -3,21 +3,25 @@
 
 
 #define          LAYER 3  // 레이어 개수를 이곳에서 설정
-#define          OPT_OPTIMIZING true  //  프레임워크 루틴 실행 시의 메모리 최적화 옵션 on/off
+
+// 아래 옵션은 활성화/비활성화 가능
+//#define          OPT_OPTIMIZING  //  프레임워크 루틴 실행 시의 실시간 메모리 최적화 옵션
 
 
 // 프레임워크 클래스 및 관련 변수, 함수
-// 클래스 자체는 아무 역할도 하지 않으며, 게임 오브젝트들을 담아 한꺼번에 객체 코드를 실행하는 컨테이너 역할을 함
+// '사용자 - 게임 오브젝트' 또는 '게임 오브젝트 - 게임 오브젝트' 통신을 가능하게 해주는 인터페이스
 class Framework {
 public:
+
 	// 아래의 함수들은 반드시 게임 오브젝트 클래스들이 상속 받도록 해야함
-	virtual void render() {}          // 게임 오브젝트 출력
-	virtual void check_collision() {} // 게임 오브젝트 충돌 처리
-	virtual void update() {}          // 게임 오브젝트 업데이트
+	virtual void update()            {}  // 게임 오브젝트 업데이트
+	virtual void check_collision()   {}  // 게임 오브젝트 충돌 처리
+	virtual void render()            {}  // 게임 오브젝트 출력
+	virtual void check_delete_flag() {}  // 게임 오브젝트 삭제 플래그 검사
 
 	// 이외에도 객체 정보 얻기 등의 함수를 직접 정의 가능
 
-	virtual      ~Framework() {}           //소멸자, Framework를 통해 객체의 소멸자를 호출함
+	virtual      ~Framework() {}           //소멸자, Framework 클래스를 통해 객체의 소멸자를 호출함
 };
 
 
