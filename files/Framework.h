@@ -16,7 +16,7 @@ public:
 	double    ft{};
 	clock_t   start_time{}, end_time{};
 
-	std::array<std::vector<Bridge*>, OPT_LAYER> bridge;
+	std::array<std::vector<Bridge*>, OPT_LAYER> bridge{};
 
 
 	void routine() {
@@ -57,7 +57,7 @@ public:
 	}
 
 
-	Bridge* ptr_track(int layer, int index) {
+	Bridge* connect_ptr(int layer, int index) {
 		if (index >= bridge[layer].size())
 			return nullptr;
 		else

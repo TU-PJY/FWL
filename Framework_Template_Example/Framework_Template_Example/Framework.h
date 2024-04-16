@@ -16,7 +16,7 @@ public:
 	double    ft{};  // 프레임 타임, 모든 오브젝트 움직임 또는 수치 업데이트에 곱해야 함
 	clock_t   start_time{}, end_time{};  // 루틴 실행 소요 시간 측정 변수
 
-	std::array<std::vector<Bridge*>, OPT_LAYER> bridge;
+	std::array<std::vector<Bridge*>, OPT_LAYER> bridge{};
 
 	// 전체 게임 루프 (예: 출력, 이동 등...)
 	void routine() {
@@ -70,12 +70,12 @@ public:
 	}
 
 
-	// 특정 오브젝트에 대한 포인터 추적 설정
-	// 특정 레이어, 특정 번호의 인덱스를 추적한다
-	// ex) auto ptr = fw.ptr_track(2, 3);
-	Bridge* ptr_track(int layer, int index) {
+	// 특정 오브젝트에 대한 포인터 연결 설정
+	// 특정 레이어, 특정 번호의 인덱스에 포인터를 연결한다
+	// ex) auto ptr = fw.connect_ptr(2, 3);
+	Bridge* connect_ptr(int layer, int index) {
 
-		// 존재하지 않는 레이어에 의존할 경우 nullptr을 리턴한다
+		// 존재하지 않는 레이어에 연결할 경우 nullptr을 리턴한다
 		if (index >= bridge[layer].size())
 			return nullptr;
 		else

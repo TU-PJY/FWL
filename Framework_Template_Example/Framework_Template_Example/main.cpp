@@ -9,7 +9,7 @@
 // 프레임워크 생성. 최초 생성 시 extern 키워드를 붙일 것
 extern Framework fw;
 
-// true일 시 각 객체 클래스 메시지 출력, false일 시 depend_on()관련 메시지 출력 
+// true일 시 각 객체 클래스 메시지 출력, false일 시 connect_ptr()관련 메시지 출력 
 bool class_message = true;  
 
 
@@ -29,8 +29,8 @@ int main() {
 	fw.add_object(new Monster(2, 0), 0);
 	fw.add_object(new Monster(3, 0), 0);
 
-	// ptr_track() 설명용 객체
-	fw.add_object(new DependPtr(2), 2);
+	// connect_ptr() 설명용 객체
+	fw.add_object(new ConnectPtrExample(2), 2);
 
 	std::cout << std::endl;
 	

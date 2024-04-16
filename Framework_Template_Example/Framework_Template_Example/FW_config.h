@@ -25,8 +25,6 @@ public:
 	virtual void check_delete_flag() {}  // 게임 오브젝트 삭제 플래그 검사
 
 	// 이곳에 사용자 정의 함수 직접 정의
-	// auto ptr = framework_name.depend_on(layer, index); 식으로 포인터를 특정 객체에 의존시킨 후 해당 멤버 함수에 접근해야함
-	
 	// 변수 리턴 함수의 경우 기본 값을 리턴하는 코드로 정의할 것. 객체 클래스에서 재정의 되므로 Bridge 멤버 함수의 내용은 의미가 없음
 	virtual int get_info() const {return {};}
 

@@ -49,7 +49,8 @@ public:
 			std::cout  << "deleted Human " << type << std::endl << std::endl;
 	}
 
-	// 외부에서 객체의 데이터를 얻는 함수
+	// Bridge class로부터 상속받아 해당 클래스에서 재정의
+	// 외부에서 객체의 번호 데이터를 얻는 함수
 	int get_info() const { return type; }
 
 	// Bridge class로부터 상속받아 해당 클래스에서 재정의
@@ -146,31 +147,31 @@ public:
 };
 
 
-class DependPtr : public Bridge {
+class ConnectPtrExample : public Bridge {
 public:
 	int layer;
 	bool delete_flag{};
 
-	DependPtr(int l) {
+	ConnectPtrExample(int l) {
 		layer = l;
 	}
 
-	~DependPtr() {
-		std::cout << std::endl << "deleted DependPtr" << std::endl;
+	~ConnectPtrExample() {
+		std::cout << std::endl << "deleted ConnectPtrExample" << std::endl;
 	}
 
 	void update() {
-		// ptr_track()은 특정 레이어의 특정 객체의 인덱스에 대해 포인터가 추적하도록 한다
+		// ptr_track()은 특정 레이어의 특정 객체의 인덱스에 포인터가 연결되도록 한다
 
 		if (!class_message) {
 			for (int i = 0; i < fw.layer_size(0); ++i) {
-				auto ptr = fw.ptr_track(0, i);  // 0번 레이어의 객체들에 대해 포인터 의존
+				auto ptr = fw.connect_ptr(0, i);  // 0번 레이어의 객체들에 포인터 연결
 				if (ptr != nullptr)
 					std::cout << "ptr got number '" << ptr->get_info() << "' from objects in layer 0" << std::endl;
 			}
 
 			for (int i = 0; i < fw.layer_size(1); ++i) {
-				auto ptr = fw.ptr_track(1, i);  // 1번 레이어의 객체들에 대해 포인터 의존
+				auto ptr = fw.connect_ptr(1, i);  // 1번 레이어의 객체들에 포인터 연결
 				if (ptr != nullptr)
 					std::cout << "ptr got number '" << ptr->get_info() << "' from objects in layer 1" << std::endl;
 			}
