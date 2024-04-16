@@ -161,7 +161,7 @@ public:
 	}
 
 	void update() {
-		// ptr_track()은 특정 레이어의 특정 객체의 인덱스에 포인터가 연결되도록 한다
+		// connect_ptr()은 특정 레이어의 특정 객체의 인덱스에 포인터가 연결되도록 한다
 
 		if (!class_message) {
 			for (int i = 0; i < fw.layer_size(0); ++i) {
