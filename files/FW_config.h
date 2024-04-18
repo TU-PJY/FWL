@@ -1,7 +1,7 @@
 #pragma once
-#define          OPT_FRAMEWORK
-#define          OPT_LAYER 1
-//#define        OPT_OPTIMIZING
+#define          USING_FRAMEWORK
+#define          NUMBER_OF_LAYER 1
+//#define          USING_OPTIMIZING
 
 
 class Bridge {
@@ -11,7 +11,7 @@ public:
 	virtual void render() {}
 	virtual void check_delete_flag() {}
 	
-	// user functions here
+	// define user functions here
 
 	virtual      ~Bridge() {}
 };

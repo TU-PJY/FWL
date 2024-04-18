@@ -8,15 +8,15 @@
 // 프레임워크 설정 헤더
 #include "FW_config.h"
 
-#ifdef OPT_FRAMEWORK
-#ifdef OPT_LAYER
+#ifdef USING_FRAMEWORK
+#ifdef NUMBER_OF_LAYER
 
 class Framework {
 public:
 	double    ft{};  // 프레임 타임, 모든 오브젝트 움직임 또는 수치 업데이트에 곱해야 함
 	clock_t   start_time{}, end_time{};  // 루틴 실행 소요 시간 측정 변수
 
-	std::array<std::vector<Bridge*>, OPT_LAYER> bridge{};
+	std::array<std::vector<Bridge*>, NUMBER_OF_LAYER> bridge{};
 
 	// 전체 게임 루프 (예: 출력, 이동 등...)
 	void routine() {
@@ -25,11 +25,11 @@ public:
 		start_time = clock();
 
 		// 하위 레이어부터 순서대로 오브젝트 코드를 실행함
-		for (int i = 0; i < OPT_LAYER; ++i) {
+		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
 
 			// 메모리가 과하게 할당되어있을 경우 할당량 최적화
 			// 옵션 활성화 시에만 실행
-			#ifdef OPT_OPTIMIZING
+			#ifdef USING_OPTIMIZING
 			if (bridge[i].size() * 2 < bridge[i].capacity())
 				bridge[i].shrink_to_fit();
 			#endif
@@ -122,7 +122,7 @@ public:
 
 	// 모든 게임 오브젝트 삭제
 	void sweep_all() {
-		for (int i = 0; i < OPT_LAYER; i++) {
+		for (int i = 0; i < NUMBER_OF_LAYER; i++) {
 			for (auto it = bridge[i].begin(); it != bridge[i].end();) {
 				auto target = std::find(bridge[i].begin(), bridge[i].end(), *it);
 				

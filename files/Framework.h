@@ -8,8 +8,8 @@
 #include "FW_config.h"
 
 
-#ifdef OPT_FRAMEWORK
-#ifdef OPT_LAYER
+#ifdef USING_FRAMEWORK
+#ifdef NUMBER_OF_LAYER
 
 class Framework {
 public:
@@ -24,7 +24,7 @@ public:
 		
 		for (int i = 0; i < OPT_LAYER; ++i) {
 			
-			#ifdef OPT_OPTIMIZING
+			#ifdef USING_OPTIMIZING
 			if (bridge[i].size() * 2 < bridge[i].capacity())
 				bridge[i].shrink_to_fit();
 			#endif
