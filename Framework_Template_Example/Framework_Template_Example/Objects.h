@@ -154,6 +154,8 @@ public:
 
 	ConnectPtrExample(int l) {
 		layer = l;
+
+		std::cout << std::endl << "added ConnectPtrExample" << std::endl;
 	}
 
 	~ConnectPtrExample() {

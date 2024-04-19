@@ -10,7 +10,7 @@
 extern Framework fw;
 
 // true일 시 각 객체 클래스 메시지 출력, false일 시 connect_ptr()관련 메시지 출력 
-bool class_message = true;  
+bool class_message = false;  
 
 
 int main() {
@@ -30,7 +30,8 @@ int main() {
 	fw.add_object(new Monster(3, 0), 0);
 
 	// connect_ptr() 설명용 객체
-	fw.add_object(new ConnectPtrExample(2), 2);
+	if(!class_message)
+		fw.add_object(new ConnectPtrExample(2), 2);
 
 	std::cout << std::endl;
 	
