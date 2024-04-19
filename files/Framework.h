@@ -19,7 +19,10 @@ public:
 	
 	bool  mode_start{};
 	using func = void(*)();
-
+	
+	std::string mode_name{}, prev_mode_name{};
+	int popup_layer_number = -1;
+	
 	std::array<std::deque<Bridge*>, OPT_LAYER> bridge{};
 
 
@@ -65,7 +68,7 @@ public:
 	}
 
 
-	int layer_size(int layer) {
+	size_t layer_size(int layer) {
 		return bridge[layer].size();
 	}
 
@@ -106,17 +109,48 @@ public:
 	}
 	
 
-	void init_start_mode(func modefunc) {
+	void init_start_mode(func modefunc, std::string modename) {
+		if (framework_enable)
+			return;
+	
 		modefunc();
-		mode_start = true;
+		mode_name = modename;
+		framework_enable = true;
 	}
 	
-
-	void change_mode(func modefunc) {
+	
+	void popup_mode(func modefunc, std::string modename, int layer) {
+		if (popup_layer_number != -1)
+			return;
+	
+		modefunc();
+		prev_mode_name = mode_name;
+		popup_layer_number = layer;
+	
+		mode_name = modename;
+	}
+	
+	
+	void close_popup_mode() {
+		if (popup_layer_number == -1)
+			return;
+	
+		sweep_layer(popup_layer_number);
+		
+		popup_layer_number = -1;
+		mode_name = prev_mode_name;
+	}
+	
+	
+	void change_mode(func modefunc, std::string modename) {
+		if(mode_name == modename)
+			return;
+			
 		sweep_all();
 	
 		framework_enable = false;
 		modefunc();
+		mode_name = modename;
 		framework_enable = true;
 	}
 };

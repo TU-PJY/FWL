@@ -7,7 +7,7 @@
 // 필수 옵션, 하나라도 설정 안 하면 프레임워크가 활성화 되지 않음
 #define          USING_FRAMEWORK       // 프레임워크 사용 활성화
 #define          NUMBER_OF_LAYER 3     // 레이어 개수 설정
-#define          START_MODE "example"  // 시작 모드 설정, 문자열로 지정하는 것을 권장함
+#define          START_MODE "example_mode"  // 시작 모드 설정, 문자열로 지정
 
 // 게임 오브젝트 - 프레임워크 통신을 연결함
 // Game object <----> Bridge <----> Framework <----> User

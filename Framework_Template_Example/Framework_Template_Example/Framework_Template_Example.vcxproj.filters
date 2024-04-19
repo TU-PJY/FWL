@@ -4,6 +4,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Main</Filter>
     </ClCompile>
+    <ClCompile Include="modes.cpp">
+      <Filter>modes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.h">
@@ -15,6 +18,9 @@
     <ClInclude Include="FW_config.h">
       <Filter>Framework</Filter>
     </ClInclude>
+    <ClInclude Include="modes.h">
+      <Filter>modes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">
@@ -25,6 +31,9 @@
     </Filter>
     <Filter Include="Objects">
       <UniqueIdentifier>{81f74eaf-bef4-445a-88fa-f4b87f6d475c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modes">
+      <UniqueIdentifier>{961fda86-631e-4369-a457-115c4ad3a4bf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

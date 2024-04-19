@@ -18,9 +18,12 @@ public:
 	clock_t   start_time{}, end_time{};  // 루틴 실행 소요 시간 측정 변수
 
 	bool framework_enable{};  // 프레임워크 구동 활성화 여부, true가 되어야 routine()함수 실행
-	using func = void(*)();  // callable type 함수 인자
+	using func = void(*)();   // callable type 함수 인자
 
-	std::array<std::deque<Bridge*>, NUMBER_OF_LAYER> bridge{};
+	std::string mode_name{}, prev_mode_name{};  // 현재 실행 중인 모드 이름, 이전까지 실행했던 모드 이름
+	int popup_layer_number = -1;  // 팝업 모드 객체를 실행하는 레이어 번호, 팝업 모드 실행 중이 아니라면 -1로 설정되어 있음
+
+	std::array<std::deque<Bridge*>, NUMBER_OF_LAYER> bridge{};  // NUMBER_OF_LAYER 만큼 레이어가 생성
 
 
 	// 전체 게임 루프 (예: 출력, 이동 등...)
@@ -85,7 +88,7 @@ public:
 
 
 	// 특정 레이어에 존재하는 오브젝트 수 리턴
-	int layer_size(int layer) {
+	size_t layer_size(int layer) {
 		return bridge[layer].size();
 	}
 
@@ -137,18 +140,54 @@ public:
 
 
 	// 시작 모드 설정
-	void init_start_mode(func modefunc) {
+	void init_start_mode(func modefunc, std::string modename) {
+		if (framework_enable)
+			return;
+
 		modefunc();
+		mode_name = modename;
 		framework_enable = true;  // 시작 모드 설정이 완료되면 프레임워크 루틴 시작
 	}
 
 
+	// 팝업 모드 실행, 반드시 팝업 모드를 위한 별도의 레이어가 있어야 함
+	// 한 개의 팝업 모드만 실행 가능함
+	void popup_mode(func modefunc, std::string modename, int layer) {
+		if (popup_layer_number != -1)
+			return;
+
+		modefunc();
+		prev_mode_name = mode_name;  // 최근 실행한 모드 이름을 저장
+		popup_layer_number = layer;  // 팝업 모드를 실행하는 레이어 번호 저장
+
+		mode_name = modename;
+	}
+
+
+	// 팝업 모드 끝내기
+	void close_popup_mode() {
+		if (popup_layer_number == -1)
+			return;
+
+		// 저장된 팝업 레이어 번호에 존재하는 모든 객체 삭제
+		sweep_layer(popup_layer_number);
+
+		// 초기값으로 초기화
+		popup_layer_number = -1;
+		mode_name = prev_mode_name;
+	}
+
+
 	// 모드 변경
-	void change_mode(func modefunc) {
+	void change_mode(func modefunc, std::string modename) {
+		if (mode_name == modename)
+			return;
+
 		sweep_all();  // 모드 전환 시 기존의 객체를 모두 삭제한 후 모드 변경
 
 		framework_enable = false;  // 프레임워크 일시정지
 		modefunc();  // 모드 시작 코드 실행
+		mode_name = modename;
 		framework_enable = true;  // 프레임워크 재개
 	}
 };
