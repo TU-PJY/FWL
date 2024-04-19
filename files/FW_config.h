@@ -1,7 +1,6 @@
 #pragma once
 #define          USING_FRAMEWORK
 #define          NUMBER_OF_LAYER 1
-//#define          USING_OPTIMIZING
 
 
 class Bridge {

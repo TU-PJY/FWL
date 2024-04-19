@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include <vector>
+#include <deque>
 #include <array>
 #include <algorithm>
 #include <ctime>
@@ -16,19 +16,13 @@ public:
 	double    ft{};
 	clock_t   start_time{}, end_time{};
 
-	std::array<std::vector<Bridge*>, OPT_LAYER> bridge{};
+	std::array<std::deque<Bridge*>, OPT_LAYER> bridge{};
 
 
 	void routine() {
 		start_time = clock();
 		
 		for (int i = 0; i < OPT_LAYER; ++i) {
-			
-			#ifdef USING_OPTIMIZING
-			if (bridge[i].size() * 2 < bridge[i].capacity())
-				bridge[i].shrink_to_fit();
-			#endif
-
 			for (auto it = bridge[i].begin(); it != bridge[i].end();) {
 				auto& ptr = *it;
 
@@ -93,7 +87,7 @@ public:
 
 
 	void sweep_all() {
-		for (int i = 0; i < OPT_LAYER; i++) {
+		for (int i = 0; i < OPT_LAYER; ++i) {
 			for (auto it = bridge[i].begin(); it != bridge[i].end();) {
 				auto target = std::find(bridge[i].begin(), bridge[i].end(), *it);
 				

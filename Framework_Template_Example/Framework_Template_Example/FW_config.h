@@ -8,10 +8,6 @@
 #define          USING_FRAMEWORK       // 프레임워크 사용 활성화
 #define          NUMBER_OF_LAYER 3         // 레이어 개수 설정
 
-// 선택 옵션
-//#define        USING_OPTIMIZING  // 실시간 메모리 최적화 기능 옵션
-
-
 // 게임 오브젝트 - 프레임워크 통신을 연결함
 // Game object <----> Bridge <----> Framework <----> User
 
