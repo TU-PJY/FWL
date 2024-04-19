@@ -68,17 +68,17 @@ public:
 	}
 
 	// Bridge class로부터 상속받아 해당 클래스에서 재정의
-	// 객체 랜더링
-	void render() {
-		if (class_message)
-			std::cout << "rendered Human " << type << "   " << cnt << " times" << std::endl << std::endl;
-	}
-
-	// Bridge class로부터 상속받아 해당 클래스에서 재정의
 	// 충돌 관련 변수는 public으로 설정 할 것을 권장함
     void check_collision() {
 		if (class_message)
 			std::cout << "checked collision of Human " << type << "   " << cnt << " times" << std::endl;
+	}
+
+	// Bridge class로부터 상속받아 해당 클래스에서 재정의
+	// 객체 랜더링
+	void render() {
+		if (class_message)
+			std::cout << "rendered Human " << type << "   " << cnt << " times" << std::endl << std::endl;
 	}
 
 	// Bridge class로부터 상속받아 해당 클래스에서 재정의
@@ -127,14 +127,14 @@ public:
 			delete_flag = true;
 	}
 
-	void render() {
-		if (class_message)
-			std::cout << "rendered Monster " << type << "   " << cnt << " times" << std::endl << std::endl;
-	}
-
 	void check_collision() {
 		if (class_message)
 			std::cout << "checked collision of Monster " << type << "   " << cnt << " times" << std::endl;
+	}
+
+	void render() {
+		if (class_message)
+			std::cout << "rendered Monster " << type << "   " << cnt << " times" << std::endl << std::endl;
 	}
 
 	void check_delete_flag() {
@@ -163,12 +163,12 @@ public:
 	}
 
 	void update() {
-		// connect_ptr()은 특정 레이어의 특정 객체의 인덱스에 포인터가 연결되도록 한다
+		// connect_ptr()은 특정 레이어에 속하는 특정 인덱스에 포인터가 연결되도록 한다
 
 		if (!class_message) {
 			for (int i = 0; i < fw.layer_size(0); ++i) {
 				auto ptr = fw.connect_ptr(0, i);  // 0번 레이어의 객체들에 포인터 연결
-				if (ptr != nullptr)
+				if (ptr != nullptr)  // ptr->get_info()를 통해 각 객체의 type을 얻어서 출력한다
 					std::cout << "ptr got number '" << ptr->get_info() << "' from objects in layer 0" << std::endl;
 			}
 

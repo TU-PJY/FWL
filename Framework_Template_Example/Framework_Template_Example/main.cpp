@@ -10,7 +10,7 @@
 extern Framework fw;
 
 // true일 시 각 객체 클래스 메시지 출력, false일 시 connect_ptr()관련 메시지 출력 
-bool class_message = false;  
+bool class_message = true;  
 
 
 int main() {

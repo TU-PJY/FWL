@@ -27,7 +27,7 @@ public:
 		// 하위 레이어부터 순서대로 오브젝트 코드를 실행함
 		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
 			for (auto it = bridge[i].begin(); it != bridge[i].end();) {
-				auto& ptr = *it;
+				auto ptr = *it;
 
 				// 객체가 존재하면 오브젝트 코드를 실행
 				if (ptr != nullptr) {
