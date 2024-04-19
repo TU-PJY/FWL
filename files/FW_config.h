@@ -1,6 +1,7 @@
 #pragma once
 #define          USING_FRAMEWORK
 #define          NUMBER_OF_LAYER 1
+#define          START_MODE "mode_name"
 
 
 class Bridge {
