@@ -4,19 +4,14 @@
 #include <random>
 
 #include "Framework.h"
+#include "global.h"
 // 게임 오브젝트 클래스 예제
 
 // 모든 객체는 update(), check_collision(), render(), check_delete_flag()를 Bridge class로부터 상속 받아야 함
 // 아래의 코드들은 예제 코드임
 
-extern bool class_message;
-
 std::default_random_engine dre;
 std::uniform_int_distribution<int> uid{ 1, 10 };
-
-// 프레임워크가 필요한 곳은 extern 키워드를 붙여 프레임워크 사용을 명시할 것
-extern Framework fw;
-
 
 // Bridge로 Framework클래스와 연결해야 각 객체가 사용자와 통신 가능함
 class Human : public Bridge { 

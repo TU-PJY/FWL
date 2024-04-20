@@ -3,10 +3,7 @@
 #include "Framework.h"
 #include "Objects.h"
 #include "modes.h"
-
-
-// 프레임워크가 필요한 곳은 extern 키워드를 붙여 프레임워크 사용을 명시할 것
-extern Framework fw;
+#include "global.h"
 
 // 예제 모드를 시작하는 코드
 // 시작 코드는 void type 함수로 작성할 것
@@ -37,4 +34,8 @@ void example_mode() {
 // 다른 모드로 변경 시 메시지를 출력함
 void other_mode() {
 	std::cout << "mode changed to other_mode" << std::endl << std::endl;
+
+	fw.add_object(new Human(1, 1), 1);
+	fw.add_object(new Human(2, 1), 1);
+	fw.add_object(new Human(3, 1), 1);
 }

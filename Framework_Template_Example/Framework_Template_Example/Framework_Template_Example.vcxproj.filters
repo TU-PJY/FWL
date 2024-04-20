@@ -21,6 +21,9 @@
     <ClInclude Include="modes.h">
       <Filter>modes</Filter>
     </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Framework">

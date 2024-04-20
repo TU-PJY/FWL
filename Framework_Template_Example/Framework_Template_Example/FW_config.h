@@ -5,9 +5,13 @@
 // 반드시 이 파일에 설정할 것 
 
 // 필수 옵션, 하나라도 설정 안 하면 프레임워크가 활성화 되지 않음
-#define          USING_FRAMEWORK       // 프레임워크 사용 활성화
-#define          NUMBER_OF_LAYER 3     // 레이어 개수 설정
+#define          USING_FRAMEWORK            // 프레임워크 사용 활성화
+#define          NUMBER_OF_LAYER 3          // 레이어 개수 설정
 #define          START_MODE "example_mode"  // 시작 모드 설정, 문자열로 지정
+
+// 선택 옵션, 비활성화 또는 활성화 가능
+#define          USING_POPUP_MODE           // 팝업 모드 사용 여부
+#define          NUMBER_OF_LAYER_POPUP 3    // 팝업모드 레이어 개수 설정
 
 // 게임 오브젝트 - 프레임워크 통신을 연결함
 // Game object <----> Bridge <----> Framework <----> User
@@ -27,3 +31,24 @@ public:
 
 	virtual     ~Bridge() {}             //소멸자, Bridge 클래스를 통해 객체의 소멸자를 호출함
 };
+
+
+#ifdef USING_POPUP_MODE
+#ifdef NUMBER_OF_LAYER_POPUP
+
+// 팝업 모드 전용 Bridge 클래스
+class POP_Bridge {
+public:
+	// Bridge 멤버함수들은 반드시 게임 오브젝트 클래스들이 상속 받도록 해야함
+	virtual void update() {}             // 게임 오브젝트 업데이트
+	virtual void check_collision() {}    // 게임 오브젝트 충돌 처리
+	virtual void render() {}             // 게임 오브젝트 출력
+	virtual void check_delete_flag() {}  // 게임 오브젝트 삭제 플래그 검사
+
+	// 이곳에 사용자 정의 함수 직접 정의
+
+	virtual     ~POP_Bridge() {}             //소멸자, Bridge 클래스를 통해 객체의 소멸자를 호출함
+};
+
+#endif
+#endif

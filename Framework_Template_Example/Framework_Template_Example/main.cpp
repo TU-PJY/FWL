@@ -1,5 +1,9 @@
 #include "Framework.h"
 #include "modes.h"
+#include "global.h"
+
+// 프레임워크 최초 생성
+Framework fw;
 
 // true일 시 각 객체 클래스 메시지 출력, false일 시 connect_ptr()관련 메시지 출력 
 bool class_message = true;  
@@ -7,8 +11,6 @@ bool class_message = true;
 // true일 시 하단의 모드 변경 코드 실행
 bool mode_change = false;
 
-// 프레임워크 최초 생성
-Framework fw;
 
 int main() {
 	// 함수를 인자로 받음. 실행하고자 하는 코드들을 함수로 작성하여 인자에 전달

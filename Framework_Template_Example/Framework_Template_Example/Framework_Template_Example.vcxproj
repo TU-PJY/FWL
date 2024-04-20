@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClInclude Include="Framework.h" />
     <ClInclude Include="FW_config.h" />
+    <ClInclude Include="global.h" />
     <ClInclude Include="modes.h" />
     <ClInclude Include="Objects.h" />
   </ItemGroup>
