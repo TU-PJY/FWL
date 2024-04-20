@@ -128,7 +128,10 @@ public:
 
 	// 게임 오브젝트 추가, 모드 전환 시 임시 컨테이너에 추가된다
 	void add_object(Bridge*&& object, int layer) {
-		if(framework_pause)
+		if (popup_mode_enable)
+			return;
+
+		if (framework_pause)
 			temp_bridge[layer].push_back(object);
 
 		else

@@ -109,6 +109,9 @@ public:
 
 
 	void add_object(Bridge*&& object, int layer) {
+		if (popup_mode_enable)
+			return;
+	
 		if (framework_pause)
 			temp_bridge[layer].push_back(object);
 
