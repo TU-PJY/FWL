@@ -17,8 +17,13 @@ int main() {
 	if(std::string(START_MODE) == "example_mode")
 		fw.init_start_mode(example_mode, "example_mode");
 
+	// START_MODE가 무엇이냐에 따라 시작 모드가 달라짐
+	else if (std::string(START_MODE) == "other_mode")
+		fw.init_start_mode(other_mode, "other_mode");
+
 	// mode_change 활성화 시 example_mode에서 추가되었던 객체가 즉시 모두 삭제되고 변경된 모드 시작 코드에 있는 메시지가 출력된다
 	// 실행 모드 이름과 실행 함수 이름이 같도록 작성하는 것을 권장함
+	// 현재 모드와 같은 모드로 변경하면 함수가 실행되지 않음
 	if(mode_change)
 		fw.change_mode(other_mode, "other_mode");
 

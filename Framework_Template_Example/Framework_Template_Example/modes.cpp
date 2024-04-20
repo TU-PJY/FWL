@@ -36,5 +36,5 @@ void example_mode() {
 
 // 다른 모드로 변경 시 메시지를 출력함
 void other_mode() {
-	std::cout << "mode changed to " << fw.mode_name << std::endl << std::endl;
+	std::cout << "mode changed to other_mode" << std::endl << std::endl;
 }

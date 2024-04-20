@@ -53,7 +53,7 @@ public:
 						++it;  // 반복자 증가
 					}
 
-					// 객체가 존재하지 않는다면 해당 객체가 있던 벡터 인덱스를 삭제
+					// 객체가 존재하지 않는다면 해당 객체가 있던 인덱스를 삭제
 					else
 						it = bridge[i].erase(remove(bridge[i].begin(), bridge[i].end(), ptr));
 				}
@@ -105,7 +105,7 @@ public:
 			delete* target;
 
 			// 오브젝트는 더 이상 존재하지 않음
-			// 남은 프레임워크 인덱스는 routine() 함수에서 삭제함
+			// 남은 인덱스는 routine() 함수에서 삭제함
 			*target = nullptr;
 		}
 	}
