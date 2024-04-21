@@ -125,10 +125,10 @@ public:
 
 		framework_changing_mode = true;
 
-		modefunc();
 		sweep_all();
 
 		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
+			sweep_layer(i);
 			main_cont[i] = temp_cont[i];
 			temp_cont[i].clear();
 		}
