@@ -7,14 +7,14 @@
 #include "global.h"
 // 게임 오브젝트 클래스 예제
 
-// 모든 객체는 update(), check_collision(), render(), check_delete_flag()를 Bridge class로부터 상속 받아야 함
+// 모든 객체는 update(), check_collision(), render(), check_delete_flag()를 FUNCTION class 또는 POP_FUNCTION로부터 상속 받아야 함
 // 아래의 코드들은 예제 코드임
 
 std::default_random_engine dre;
 std::uniform_int_distribution<int> uid{ 1, 10 };
 
-// Bridge로 Framework클래스와 연결해야 각 객체가 사용자와 통신 가능함
-class Human : public Bridge { 
+// FUNCTION 클래스로부터 상속받아야함
+class Human : public FUNCTION { 
 private:
 	int type, num, cnt{};
 
@@ -45,11 +45,12 @@ public:
 			std::cout  << "deleted Human " << type << std::endl << std::endl;
 	}
 
-	// Bridge class로부터 상속받아 해당 클래스에서 재정의
+	// FUNCTION class로부터 상속받아 해당 클래스에서 재정의
 	// 외부에서 객체의 번호 데이터를 얻는 함수
 	int get_info() const { return type; }
 
-	// Bridge class로부터 상속받아 해당 클래스에서 재정의
+
+	// FUNCTION class로부터 상속받아 해당 클래스에서 재정의
 	// 객체 업데이트
 	void update() {
 		cnt++;
@@ -63,21 +64,24 @@ public:
 			delete_flag = true;
 	}
 
-	// Bridge class로부터 상속받아 해당 클래스에서 재정의
+
+	// FUNCTION class로부터 상속받아 해당 클래스에서 재정의
 	// 충돌 관련 변수는 public으로 설정 할 것을 권장함
     void check_collision() {
 		if (class_message)
 			std::cout << "checked collision of Human " << type << "   " << cnt << " times" << std::endl;
 	}
 
-	// Bridge class로부터 상속받아 해당 클래스에서 재정의
+
+	// FUNCTION class로부터 상속받아 해당 클래스에서 재정의
 	// 객체 랜더링
 	void render() {
 		if (class_message)
 			std::cout << "rendered Human " << type << "   " << cnt << " times" << std::endl << std::endl;
 	}
 
-	// Bridge class로부터 상속받아 해당 클래스에서 재정의
+
+	// FUNCTION class로부터 상속받아 해당 클래스에서 재정의
 	// 객체 삭제는 이 함수에서 실행해야함
 	void check_delete_flag() {
 		if (delete_flag)  // 객체 삭제 플래그가 활성화 되었다면 객체 스스로 삭제 실행
@@ -89,7 +93,7 @@ public:
 };
 
 
-class Monster : public Bridge {
+class Monster : public FUNCTION {
 private:
 	int type, num, cnt{};
 
@@ -143,7 +147,7 @@ public:
 };
 
 
-class ConnectPtrExample : public Bridge {
+class ConnectPtrExample : public FUNCTION {
 public:
 	int layer;
 	bool delete_flag{};
@@ -164,12 +168,15 @@ public:
 		if (!class_message) {
 			for (int i = 0; i < fw.layer_size(0); ++i) {
 				auto ptr = fw.connect_ptr(0, i);  // 0번 레이어의 객체들에 포인터 연결
+
 				if (ptr != nullptr)  // ptr->get_info()를 통해 각 객체의 type을 얻어서 출력한다
 					std::cout << "ptr got number '" << ptr->get_info() << "' from objects in layer 0" << std::endl;
 			}
 
+
 			for (int i = 0; i < fw.layer_size(1); ++i) {
 				auto ptr = fw.connect_ptr(1, i);  // 1번 레이어의 객체들에 포인터 연결
+
 				if (ptr != nullptr)
 					std::cout << "ptr got number '" << ptr->get_info() << "' from objects in layer 1" << std::endl;
 			}

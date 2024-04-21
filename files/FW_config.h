@@ -4,11 +4,11 @@
 #define          START_MODE "mode_name"
 
 
-//#define          USING_POPUP_MODE
-//#define          NUMBER_OF_LAYER_POPUP 3
+#define          USING_POPUP_MODE
+#define          NUMBER_OF_LAYER_POPUP 3
 
 
-class Bridge {
+class FUNCTION {
 public:
 	virtual void update() {}
 	virtual void check_collision() {}
@@ -17,14 +17,14 @@ public:
 	
 	// define user functions here
 
-	virtual      ~Bridge() {}
+	virtual      ~FUNCTION() {}
 };
 
 
 #ifdef USING_POPUP_MODE
 #ifdef NUMBER_OF_LAYER_POPUP
 
-class POP_Bridge {
+class POP_FUNCTION {
 public:
 	virtual void update() {}
 	virtual void check_collision() {}
@@ -33,7 +33,7 @@ public:
 
 	// define user functions here
 
-	virtual     ~POP_Bridge() {} 
+	virtual     ~POP_FUNCTION() {}
 };
 
 #endif
