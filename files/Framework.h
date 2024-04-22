@@ -124,7 +124,8 @@ public:
 
 
 		framework_changing_mode = true;
-
+  
+		modefunc();
 		sweep_all();
 
 		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
