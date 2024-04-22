@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <vector>
 // 프레임워크 브릿지 설정
 
 // 필수 옵션을 설정 해야 프레임워크가 활성화 됨
@@ -11,7 +13,26 @@
 
 // 선택 옵션, 비활성화 또는 활성화 가능
 #define          USING_POPUP_MODE           // 팝업 모드 사용 여부
-#define          NUMBER_OF_LAYER_POPUP 3    // 팝업모드 레이어 개수 설정
+#define          NUMBER_OF_POPUP_LAYER 3    // 팝업모드 레이어 개수 설정
+
+
+// 프레임워크에서 실행할 모드 목록 설정
+class MODELIST {
+public:
+	// 여기에 실행할 모드 목록 입력
+	std::vector<std::string> mode_list = 
+	{ "example_mode", "other_mode" };
+
+	#ifdef USING_POPUP_MODE
+	#ifdef NUMBER_OF_POPUP_LAYER
+
+	// 여기에 실행할 팝업 모드 목록 입력
+	std::vector<std::string> popup_mode_list =
+	{ "popup_mode" };
+
+	#endif
+	#endif
+};
 
 
 // 각 객체의 함수를 실행시키는 클래스
@@ -33,10 +54,10 @@ public:
 
 
 #ifdef USING_POPUP_MODE
-#ifdef NUMBER_OF_LAYER_POPUP
+#ifdef NUMBER_OF_POPUP_LAYER
 
 // 팝업 모드 전용 FUNCTION 클래스
-class POP_FUNCTION {
+class POPUP_FUNCTION {
 public:
 	// 아래 4개의 멤버함수들은 반드시 게임 오브젝트 클래스들이 상속 받도록 해야함
 	virtual void update() {}					   // 게임 오브젝트 업데이트
@@ -46,7 +67,7 @@ public:
 
 	// 이곳에 사용자 정의 함수 직접 정의
 
-	virtual     ~POP_FUNCTION() {}
+	virtual     ~POPUP_FUNCTION() {}
 };
 
 #endif

@@ -1,8 +1,9 @@
 #pragma once
-#include <iostream>
-#include <deque>
-#include <array>
 #include <algorithm>
+#include <string>
+#include <array>
+#include <deque>
+#include <vector>
 #include <ctime>
 
 // 프레임워크 설정 헤더
@@ -17,11 +18,16 @@ public:
 	std::array<std::deque<FUNCTION*>, NUMBER_OF_LAYER> main_cont{};  // NUMBER_OF_LAYER 만큼 레이어가 생성
 	std::array<std::deque<FUNCTION*>, NUMBER_OF_LAYER> temp_cont{};  // 모드 전환 시 사용하는 임시 컨테이너
 
+	std::vector<std::string> mode_list;
+
 
 	#ifdef USING_POPUP_MODE
-	#ifdef NUMBER_OF_LAYER_POPUP
+	#ifdef NUMBER_OF_POPUP_LAYER
 
-	std::array<std::deque<POP_FUNCTION*>, NUMBER_OF_LAYER_POPUP> pop_cont{};  // NUMBER_OF_LAYER_POPUP 만큼 레이어가 생성
+	std::array<std::deque<POPUP_FUNCTION*>, NUMBER_OF_POPUP_LAYER> popup_cont{};  // NUMBER_OF_POPUP_LAYER 만큼 레이어가 생성
+	std::array<std::deque<POPUP_FUNCTION*>, NUMBER_OF_POPUP_LAYER> temp_popup_cont{};
+	
+	std::vector<std::string> popup_mode_list;
 	bool popup_mode_enable{}; // 팝업모드 활성화 여부, true일 시 팝업 모드 구동
 
 	#endif
@@ -81,17 +87,19 @@ public:
 			}
 
 			#ifdef USING_POPUP_MODE
-			#ifdef NUMBER_OF_LAYER_POPUP
+			#ifdef NUMBER_OF_POPUP_LAYER
 
 			// 팝업 모드 활성화 시 팝업 모드 업데이트
 			if (popup_mode_enable) {
-				for (int i = 0; i < NUMBER_OF_LAYER_POPUP; ++i) {
-					for (auto it = pop_cont[i].begin(); it != pop_cont[i].end();) {
+				for (int i = 0; i < NUMBER_OF_POPUP_LAYER; ++i) {
+					for (auto it = popup_cont[i].begin(); it != popup_cont[i].end();) {
 						auto ptr = *it;
 
 						if (ptr != nullptr) {
-							ptr->update();
-							ptr->check_collision();
+							if (!framework_changing_mode) {
+								ptr->update();
+								ptr->check_collision();
+							}
 							ptr->render();
 							ptr->check_delete_flag();
 
@@ -99,7 +107,7 @@ public:
 						}
 
 						else
-							it = pop_cont[i].erase(remove(pop_cont[i].begin(), pop_cont[i].end(), ptr));
+							it = popup_cont[i].erase(remove(popup_cont[i].begin(), popup_cont[i].end(), ptr));
 					}
 				}
 			}
@@ -123,9 +131,27 @@ public:
 		if (framework_enable)
 			return;
 
-		startmode();
+		MODELIST m;
 
+		// FW_config에 입력한 모드 목록을 프레임워크에 저장한다
+		mode_list = m.mode_list;
+
+		#ifdef USING_POPUP_MODE
+		#ifdef NUMBER_OF_POPUP_LAYER
+
+		popup_mode_list = m.popup_mode_list;
+
+		#endif
+		#endif
+
+		// 인자로 입력한 모드 이름이 모드 목록에 없을경우 실행하지 않는다.
+		auto target = std::find(mode_list.begin(), mode_list.end(), modename);
+		if (target == mode_list.end())
+			return;
+
+		startmode();
 		mode_name = modename;
+
 		framework_enable = true;  // 시작 모드 설정이 완료되면 프레임워크 루틴 시작
 	}
 
@@ -135,16 +161,10 @@ public:
 		if (mode_name == modename)
 			return;
 
-
-		// 팝업모드가 활성화 되어있을경우 팝업모드를 비활성화 후 모드 전환한다
-		#ifdef USING_POPUP_MODE
-		#ifdef NUMBER_OF_LAYER_POPUP
-
-		if (popup_mode_enable)
-			close_popup_mode();
-
-		#endif
-		#endif
+		// 인자로 입력한 모드 이름이 모드 목록에 없을경우 실행하지 않는다.
+		auto target = std::find(mode_list.begin(), mode_list.end(), modename);
+		if (target == mode_list.end())
+			return;
 
 
 		// 프레임워크가 모드 변경 상황이 되어 일시정지된다
@@ -153,6 +173,16 @@ public:
 		// 모드 시작 함수를 실행한다
 		modefunc();
 
+		// 팝업모드가 활성화 되어있을경우 팝업모드를 비활성화 후 모드 전환한다
+		#ifdef USING_POPUP_MODE
+		#ifdef NUMBER_OF_POPUP_LAYER
+
+		if (popup_mode_enable)
+			close_popup_mode();
+
+		#endif
+		#endif
+		
 		// 메인 컨테이너를 비우고나서 임시 컨테이너의 객체들을 메인 컨테이너로 복사하고, 임시 컨테이너의 인덱스를 비운다
 		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
 			sweep_layer(i);
@@ -169,9 +199,6 @@ public:
 
 	// 게임 오브젝트 추가, 모드 전환 시 임시 컨테이너에 추가된다
 	void add_object(FUNCTION*&& object, int layer) {
-		if (popup_mode_enable)
-			return;
-
 		if (framework_changing_mode)
 			temp_cont[layer].push_back(object);
 
@@ -247,12 +274,17 @@ public:
 
 
 	#ifdef USING_POPUP_MODE
-	#ifdef NUMBER_OF_LAYER_POPUP
+	#ifdef NUMBER_OF_POPUP_LAYER
 
 	// 팝업 모드 실행
 	// 한 번에 한 개의 팝업 모드만 실행 가능함
 	void init_popup_mode(func modefunc, std::string modename, bool pause_option = false) {
 		if (popup_mode_enable)
+			return;
+
+		// 인자로 입력한 모드 이름이 모드 목록에 없을경우 실행하지 않는다.
+		auto target = std::find(popup_mode_list.begin(), popup_mode_list.end(), modename);
+		if (target == popup_mode_list.end())
 			return;
 
 		modefunc();
@@ -264,6 +296,32 @@ public:
 			framework_pause = true;
 
 		popup_mode_enable = true;
+	}
+
+	// 팝업 모드 전환
+	// 팝업 모드를 다른 팝업 모드로 전환한다
+	void change_popup_mode(func modefunc, std::string modename) {
+		if (!popup_mode_enable)
+			return;
+
+		// 모드 리스트에서 인자로 받은 이름을 찾지 못하면 실행하지 않는다
+		auto target = std::find(popup_mode_list.begin(), popup_mode_list.end(), modename);
+		if (target == popup_mode_list.end())
+			return;
+
+		framework_changing_mode = true;
+
+		modefunc();
+
+		for (int i = 0; i < NUMBER_OF_POPUP_LAYER; ++i) {
+			sweep_popup_layer(i);
+			popup_cont[i] = temp_popup_cont[i];
+			temp_popup_cont[i].clear();
+		}
+
+		mode_name = modename;
+
+		framework_changing_mode = false;
 	}
 
 
@@ -283,19 +341,23 @@ public:
 
 
 	// 팝업 모드 객체 추가
-	void add_popup_object(POP_FUNCTION*&& object, int layer) {
-		pop_cont[layer].push_back(object);
+	// 팝업 모드 변경 시 임시 컨테이너에 추가된다
+	void add_popup_object(POPUP_FUNCTION*&& object, int layer) {
+		if (framework_changing_mode)
+			temp_popup_cont[layer].push_back(object);
+		else
+			popup_cont[layer].push_back(object);
 	}
 
 
 	// 팝업 모드 객체 삭제
-	void delete_popup_object(POP_FUNCTION* object, int layer) {
+	void delete_popup_object(POPUP_FUNCTION* object, int layer) {
 
 		// 게임 오브젝트가 정말로 존재하는지 확인
-		auto target = std::find(pop_cont[layer].begin(), pop_cont[layer].end(), object);
+		auto target = std::find(popup_cont[layer].begin(), popup_cont[layer].end(), object);
 
 		// 객체가 존재하는 것으로 판단되면 삭제 코드 실행
-		if (target != pop_cont[layer].end()) {
+		if (target != popup_cont[layer].end()) {
 			// 오브젝트 삭제
 			delete* target;
 
@@ -308,28 +370,25 @@ public:
 
 	// 특정 팝업 레이어에 존재하는 오브젝트 수 리턴
 	size_t popup_layer_size(int layer) {
-		return pop_cont[layer].size();
+		return popup_cont[layer].size();
 	}
 
 
 	// 특정 팝업 레이어에 존재하는 객체에 포인터 연결
-	POP_FUNCTION* connect_popup_ptr(int layer, int index) {
+	POPUP_FUNCTION* connect_popup_ptr(int layer, int index) {
 
 		// 존재하지 않는 레이어에 연결할 경우 nullptr을 리턴한다
-		if (index >= pop_cont[layer].size())
+		if (index >= popup_cont[layer].size())
 			return nullptr;
 		else
-			return pop_cont[layer][index];
+			return popup_cont[layer][index];
 	}
 
 
 	// 특정 팝업 레이어 객체 삭제
 	void sweep_popup_layer(int layer) {
-		if (!popup_mode_enable)
-			return;
-
-		for (auto it = pop_cont[layer].begin(); it != pop_cont[layer].end();) {
-			auto target = std::find(pop_cont[layer].begin(), pop_cont[layer].end(), *it);
+		for (auto it = popup_cont[layer].begin(); it != popup_cont[layer].end();) {
+			auto target = std::find(popup_cont[layer].begin(), popup_cont[layer].end(), *it);
 
 			delete* target;
 			*target = nullptr;
@@ -341,12 +400,9 @@ public:
 
 	// 모든 팝업 모드 객체 제거
 	void sweep_popup_all() {
-		if (!popup_mode_enable)
-			return;
-
 		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
-			for (auto it = pop_cont[i].begin(); it != pop_cont[i].end();) {
-				auto target = std::find(pop_cont[i].begin(), pop_cont[i].end(), *it);
+			for (auto it = popup_cont[i].begin(); it != popup_cont[i].end();) {
+				auto target = std::find(popup_cont[i].begin(), popup_cont[i].end(), *it);
 
 				delete* target;
 				*target = nullptr;

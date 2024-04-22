@@ -1,8 +1,9 @@
 #pragma once
-#include <iostream>
-#include <deque>
-#include <array>
 #include <algorithm>
+#include <string>
+#include <array>
+#include <deque>
+#include <vector>
 #include <ctime>
 
 #include "FW_config.h"
@@ -16,11 +17,16 @@ public:
 	std::array<std::deque<FUNCTION*>, NUMBER_OF_LAYER> main_cont{};
 	std::array<std::deque<FUNCTION*>, NUMBER_OF_LAYER> temp_cont{};
 
+	std::vector<std::string> mode_list;
+
 
 	#ifdef USING_POPUP_MODE
-	#ifdef NUMBER_OF_LAYER_POPUP
+	#ifdef NUMBER_OF_POPUP_LAYER
 
-	std::array<std::deque<POP_FUNCTION*>, NUMBER_OF_LAYER_POPUP> pop_cont{};
+	std::array<std::deque<POPUP_FUNCTION*>, NUMBER_OF_POPUP_LAYER> popup_cont{};
+	std::array<std::deque<POPUP_FUNCTION*>, NUMBER_OF_POPUP_LAYER> temp_popup_cont{};
+
+	std::vector<std::string> popup_mode_list;
 	bool        popup_mode_enable{};
 
 	#endif
@@ -64,16 +70,18 @@ public:
 
 
 			#ifdef USING_POPUP_MODE
-			#ifdef NUMBER_OF_LAYER_POPUP
+			#ifdef NUMBER_OF_POPUP_LAYER
 
 			if (popup_mode_enable) {
-				for (int i = 0; i < NUMBER_OF_LAYER_POPUP; ++i) {
-					for (auto it = pop_cont[i].begin(); it != pop_cont[i].end();) {
+				for (int i = 0; i < NUMBER_OF_POPUP_LAYER; ++i) {
+					for (auto it = popup_cont[i].begin(); it != popup_cont[i].end();) {
 						auto ptr = *it;
 
 						if (ptr != nullptr) {
-							ptr->update();
-							ptr->check_collision();
+							if (!framework_changing_mode) {
+								ptr->update();
+								ptr->check_collision();
+							}
 							ptr->render();
 							ptr->check_delete_flag();
 
@@ -81,7 +89,7 @@ public:
 						}
 
 						else
-							it = pop_cont[i].erase(remove(pop_cont[i].begin(), pop_cont[i].end(), ptr));
+							it = popup_cont[i].erase(remove(popup_cont[i].begin(), popup_cont[i].end(), ptr));
 					}
 				}
 			}
@@ -103,6 +111,23 @@ public:
 		if (framework_enable)
 			return;
 
+		MODELIST m;
+
+		mode_list = m.mode_list;
+
+		auto target = std::find(mode_list.begin(), mode_list.end(), modename);
+		if (target == mode_list.end())
+			return;
+
+		#ifdef USING_POPUP_MODE
+		#ifdef NUMBER_OF_POPUP_LAYER
+
+		popup_mode_list = m.popup_mode_list;
+
+		#endif
+		#endif
+
+
 		startmode();
 		mode_name = modename;
 		framework_enable = true;
@@ -113,19 +138,22 @@ public:
 		if (mode_name == modename)
 			return;
 
+		auto target = std::find(mode_list.begin(), mode_list.end(), modename);
+		if (target == mode_list.end())
+			return;
+
+		framework_changing_mode = true;
+  
+		modefunc();
+
 		#ifdef USING_POPUP_MODE
-		#ifdef NUMBER_OF_LAYER_POPUP
+		#ifdef NUMBER_OF_POPUP_LAYER
 
 		if (popup_mode_enable)
 			close_popup_mode();
 
 		#endif
 		#endif
-
-
-		framework_changing_mode = true;
-  
-		modefunc();
 
 		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
 			sweep_layer(i);
@@ -140,9 +168,6 @@ public:
 
 
 	void add_object(FUNCTION*&& object, int layer) {
-		if (popup_mode_enable)
-			return;
-	
 		if (framework_changing_mode)
 			temp_cont[layer].push_back(object);
 
@@ -203,10 +228,14 @@ public:
 
 
 #ifdef USING_POPUP_MODE
-#ifdef NUMBER_OF_LAYER_POPUP
+#ifdef NUMBER_OF_POPUP_LAYER
 
 	void init_popup_mode(func modefunc, std::string modename, bool pause_option = false) {
 		if (popup_mode_enable)
+			return;
+
+		auto target = std::find(popup_mode_list.begin(), popup_mode_list.end(), modename);
+		if (target == popup_mode_list.end())
 			return;
 
 		modefunc();
@@ -217,6 +246,30 @@ public:
 			framework_pause = true;
 
 		popup_mode_enable = true;
+	}
+
+	
+	void change_popup_mode(func modefunc, std::string modename) {
+		if (!popup_mode_enable)
+			return;
+
+		auto target = std::find(popup_mode_list.begin(), popup_mode_list.end(), modename);
+		if (target == popup_mode_list.end())
+			return;
+
+		framework_changing_mode = true;
+
+		modefunc();
+
+		for (int i = 0; i < NUMBER_OF_POPUP_LAYER; ++i) {
+			sweep_popup_layer(i);
+			popup_cont[i] = temp_popup_cont[i];
+			temp_popup_cont[i].clear();
+		}
+
+		mode_name = modename;
+
+		framework_changing_mode = false;
 	}
 
 
@@ -232,40 +285,40 @@ public:
 	}
 
 
-	void add_popup_object(POP_FUNCTION*&& object, int layer) {
-		pop_cont[layer].push_back(object);
+	void add_popup_object(POPUP_FUNCTION*&& object, int layer) {
+		if (framework_changing_mode)
+			temp_popup_cont[layer].push_back(object);
+		else
+			popup_cont[layer].push_back(object);
 	}
 
 
-	void delete_popup_object(POP_FUNCTION* object, int layer) {
-		auto target = std::find(pop_cont[layer].begin(), pop_cont[layer].end(), object);
+	void delete_popup_object(POPUP_FUNCTION* object, int layer) {
+		auto target = std::find(popup_cont[layer].begin(), popup_cont[layer].end(), object);
 
-		if (target != pop_cont[layer].end()) {
+		if (target != popup_cont[layer].end()) {
 			delete* target;
 			*target = nullptr;
 		}
 	}
 
 
-	POP_FUNCTION* connect_popup_ptr(int layer, int index) {
-		if (index >= pop_cont[layer].size())
+	POPUP_FUNCTION* connect_popup_ptr(int layer, int index) {
+		if (index >= popup_cont[layer].size())
 			return nullptr;
 		else
-			return pop_cont[layer][index];
+			return popup_cont[layer][index];
 	}
 
 
 	size_t popup_layer_size(int layer) {
-		return pop_cont[layer].size();
+		return popup_cont[layer].size();
 	}
 
 
 	void sweep_popup_layer(int layer) {
-		if (!popup_mode_enable)
-			return;
-
-		for (auto it = pop_cont[layer].begin(); it != pop_cont[layer].end();) {
-			auto target = std::find(pop_cont[layer].begin(), pop_cont[layer].end(), *it);
+		for (auto it = popup_cont[layer].begin(); it != popup_cont[layer].end();) {
+			auto target = std::find(popup_cont[layer].begin(), popup_cont[layer].end(), *it);
 
 			delete* target;
 			*target = nullptr;
@@ -276,12 +329,9 @@ public:
 
 
 	void sweep_popup_all() {
-		if (!popup_mode_enable)
-			return;
-
-		for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
-			for (auto it = pop_cont[i].begin(); it != pop_cont[i].end();) {
-				auto target = std::find(pop_cont[i].begin(), pop_cont[i].end(), *it);
+		for (int i = 0; i < NUMBER_OF_POPUP_LAYER; ++i) {
+			for (auto it = popup_cont[i].begin(); it != popup_cont[i].end();) {
+				auto target = std::find(popup_cont[i].begin(), popup_cont[i].end(), *it);
 
 				delete* target;
 				*target = nullptr;
