@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="FWL">
+      <UniqueIdentifier>{9700d206-6ff6-4fd6-96bb-4825b6a63f3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="main">
+      <UniqueIdentifier>{ef082a73-3b30-44d7-abc9-460c1da035c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modes">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="objects">
+      <UniqueIdentifier>{14f2ff77-cdc3-4e5a-a7c5-6b5feeb7131c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="modes.h">
+      <Filter>modes</Filter>
+    </ClInclude>
+    <ClInclude Include="FWL_config.h">
+      <Filter>FWL</Filter>
+    </ClInclude>
+    <ClInclude Include="FWL.h">
+      <Filter>FWL</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects.h">
+      <Filter>objects</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="modes.cpp">
+      <Filter>modes</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

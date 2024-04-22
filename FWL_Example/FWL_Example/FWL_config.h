@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FWL_CONF_H
+#define FWL_CONF_H
+
 #include <string>
 #include <vector>
 // 프레임워크 브릿지 설정
@@ -7,7 +9,7 @@
 // 반드시 이 파일에 설정할 것 
 
 // 필수 옵션, 하나라도 설정 안 하면 프레임워크가 활성화 되지 않음
-#define          USING_FRAMEWORK            // 프레임워크 사용 활성화
+#define          USING_FWL            // 프레임워크 사용 활성화
 #define          NUMBER_OF_LAYER 3          // 레이어 개수 설정
 #define          START_MODE "example_mode"  // 시작 모드 설정, 문자열로 지정
 
@@ -71,4 +73,6 @@ public:
 };
 
 #endif
+#endif
+
 #endif

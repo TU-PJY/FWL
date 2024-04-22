@@ -3,11 +3,11 @@
 #include <iostream>
 #include <random>
 
-#include "Framework.h"
+#include "FWL.h"
 #include "global.h"
 // 게임 오브젝트 클래스 예제
 
-// 모든 객체는 update(), check_collision(), render(), check_delete_flag()를 FUNCTION class 또는 POP_FUNCTION로부터 상속 받아야 함
+// 모든 객체는 update(), check_collision(), render(), check_delete_flag()를 FUNCTION 또는 POP_FUNCTION로부터 상속 받아야 함
 // 아래의 코드들은 예제 코드임
 
 std::default_random_engine dre;
@@ -19,7 +19,7 @@ private:
 	int type, num, cnt{};
 
 	// layer 변수는 모든 게임 오브젝트들이 반드시 가지고 있어야 함
-	// 어느 레이어에 존재하는지 Framework::delete_object() 함수에게 알려줘야하기 때문
+	// 어느 레이어에 존재하는지 FWL::delete_object() 함수에게 알려줘야하기 때문
 	int layer;
 
 	// 객체 삭제 플래그

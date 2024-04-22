@@ -1,8 +1,10 @@
-#pragma once
+#ifndef FWL_CONF_H
+#defien FWL_CONF_H
+
 #include <string>
 #include <vector>
 
-#define          USING_FRAMEWORK
+#define          USING_FWL
 #define          NUMBER_OF_LAYER 1
 #define          START_MODE "mode_name"
 
@@ -57,4 +59,6 @@ public:
 };
 
 #endif
+#endif
+
 #endif

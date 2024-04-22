@@ -1,9 +1,9 @@
-#include "Framework.h"
+#include "FWL.h"
 #include "modes.h"
 #include "global.h"
 
 // 프레임워크 최초 생성
-Framework fw;
+FWL fw;
 
 // true일 시 각 객체 클래스 메시지 출력, false일 시 connect_ptr()관련 메시지 출력 
 bool class_message = true;  
