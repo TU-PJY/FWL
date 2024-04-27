@@ -1,6 +1,7 @@
 #include "FWL.h"
 #include "modes.h"
 #include "global.h"
+#include "Objects.h"
 
 // 프레임워크 최초 생성
 FWL fw;
@@ -18,6 +19,7 @@ int main() {
 	// 모드 시작 함수는 modes.cpp에 정의
 	if(std::string(START_MODE) == "example_mode")
 		fw.init(example_mode, "example_mode");
+
 
 	// START_MODE가 무엇이냐에 따라 시작 모드가 달라짐
 	else if (std::string(START_MODE) == "other_mode")

@@ -7,7 +7,7 @@
 #include "global.h"
 // 게임 오브젝트 클래스 예제
 
-// 모든 객체는 update(), check_collision(), render(), check_delete_flag()를 FUNCTION 또는 POP_FUNCTION로부터 상속 받아야 함
+// 모든 객체는 update(), check_collision(), render(), check_delete()를 FUNCTION 또는 POP_FUNCTION로부터 상속 받아야 함
 // 아래의 코드들은 예제 코드임
 
 std::default_random_engine dre;
@@ -24,7 +24,7 @@ private:
 
 	// 객체 삭제 플래그
 	// 다른 이름으로도 삭제 플래그를 지정할 수 있으나 'delete_flag'로 지정하는 것을 권장함
-	// true가 되면 check_delete_flag()에서 객체 삭제 코드 실행
+	// true가 되면 check_delete()에서 객체 삭제 코드 실행
 	bool delete_flag{};
 
 public:
@@ -83,7 +83,7 @@ public:
 
 	// FUNCTION class로부터 상속받아 해당 클래스에서 재정의
 	// 객체 삭제는 이 함수에서 실행해야함
-	void check_delete_flag() {
+	void check_delete() {
 		if (delete_flag)  // 객체 삭제 플래그가 활성화 되었다면 객체 스스로 삭제 실행
 			fw.delete_object(this, layer);
 
@@ -137,7 +137,7 @@ public:
 			std::cout << "rendered Monster " << type << "   " << cnt << " times" << std::endl << std::endl;
 	}
 
-	void check_delete_flag() {
+	void check_delete() {
 		if (delete_flag)
 			fw.delete_object(this, layer);
 
@@ -189,7 +189,7 @@ public:
 	void check_collision() {}
 	void render() {}
 
-	void check_delete_flag() {
+	void check_delete() {
 		if (delete_flag)
 			fw.delete_object(this, layer);
 	}
