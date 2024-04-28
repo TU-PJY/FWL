@@ -1,5 +1,5 @@
-#ifndef FWL_CONF_H
-#define FWL_CONF_H
+#ifndef FWL_CONFIG_H
+#define FWL_CONFIG_H
 
 #include <vector>
 #include <string>
