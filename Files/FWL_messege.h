@@ -75,6 +75,8 @@ public:
 	}
 
 
+
+
 	void process_err(std::string err_type, std::string invalid_mode = "") {
 #ifdef USING_DEBUG_MESSEGE
 
@@ -166,9 +168,10 @@ public:
 		}
 
 #endif
-
 		exit(1);
 	}
+
+
 
 
 	void process_popup_err(std::string err_type, std::string invalid_mode = "") {
@@ -218,12 +221,12 @@ public:
 
 
 		// object addition error
-		else if (err_type == "FWL popup object addition error::Layer out of bounds::temp container") {
+		else if (err_type == "FWL popup object addition error::Layer out of bounds::temp popup container") {
 			std::cout << "Addition of object attempt out of layer bounds has been detected." << std::endl << std::endl;
 			std::cout << "At popup mode change: '" << current_popup_mode_name << "' -> '" << next_popup_mode_name << "'" << std::endl;
 		}
 
-		else if (err_type == "FWL popup object addition error::Layer out of bounds::main container") {
+		else if (err_type == "FWL popup object addition error::Layer out of bounds::main popup container") {
 			std::cout << "Addition of object attempt out of layer bounds has been detected." << std::endl << std::endl;
 			std::cout << "At popup mode: '" << current_popup_mode_name << "'" << std::endl;
 		}
@@ -262,9 +265,10 @@ public:
 		}
 
 #endif
-
 		exit(1);
 	}
+
+
 
 
 	FWL_MESSEGE() {

@@ -33,7 +33,7 @@ private:
 	std::array<std::deque<POPUP_FUNCTION*>, NUMBER_OF_POPUP_LAYER> temp_popup_cont{};
 
 	bool popup_mode_start{};
-	bool popup_mode_initialization{};
+	bool popup_initializtion{};
 	std::vector<std::string> popup_mode_list;
 #endif
 #endif
@@ -46,6 +46,8 @@ private:
 public:
 	std::string current_mode{};
 	double ft{};
+
+
 
 
 	void routine() {
@@ -74,7 +76,7 @@ public:
 
 #ifdef USING_POPUP_MODE
 #if NUMBER_OF_POPUP_LAYER
-			if (popup_mode_initialization) {
+			if (popup_initializtion) {
 				for (int i = 0; i < NUMBER_OF_POPUP_LAYER; ++i) {
 					for (auto it = popup_cont[i].begin(); it != popup_cont[i].end();) {
 						auto ptr = *it;
@@ -102,6 +104,8 @@ public:
 			ft = (double)(end_time - start_time) / 1000;
 		}
 	}
+
+
 
 
 	//init FWL
@@ -135,6 +139,8 @@ public:
 	}
 
 
+
+
 	// change current mode
 	void change_mode(func modefunc, std::string modename) {
 		if (!framework_initialization)
@@ -155,7 +161,7 @@ public:
 
 #ifdef USING_POPUP_MODE
 #if NUMBER_OF_POPUP_LAYER
-		if (popup_mode_initialization)
+		if (popup_initializtion)
 			end_popup();
 #endif
 #endif
@@ -174,6 +180,8 @@ public:
 
 		framework_changing_mode = false;
 	}
+
+
 
 
 	// add object
@@ -202,6 +210,8 @@ public:
 	}
 
 
+
+
 	// delete object
 	void delete_object(FUNCTION* object, int layer) {
 		if (!framework_initialization)
@@ -221,6 +231,8 @@ public:
 	}
 
 
+
+
 	// connect ptr to other layer
 	FUNCTION* connect_ptr(int layer, int index) {
 		if (!framework_initialization)
@@ -237,6 +249,8 @@ public:
 	}
 
 
+
+
 	// return number of objects of specific layer
 	size_t layer_size(int layer) {
 		if (!framework_initialization)
@@ -248,6 +262,8 @@ public:
 
 		return main_cont[layer].size();
 	}
+
+
 
 
 	// delete objects of specific layer
@@ -270,6 +286,8 @@ public:
 	}
 
 
+
+
 	// delete all object
 	void sweep_all() {
 		if (!framework_initialization)
@@ -290,6 +308,8 @@ public:
 
 
 
+
+
 #ifdef USING_POPUP_MODE
 #if NUMBER_OF_POPUP_LAYER
 
@@ -298,7 +318,7 @@ public:
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (popup_mode_initialization)
+		if (popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Reapeted init");
 
 
@@ -321,8 +341,10 @@ public:
 		f_messege.save_is_pause(framework_pause);
 		f_messege.process_popup_init_messege();
 
-		popup_mode_initialization = true;
+		popup_initializtion = true;
 	}
+
+
 
 
 	// change mode of popup
@@ -330,7 +352,7 @@ public:
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (!popup_mode_initialization)
+		if (!popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 
 
@@ -360,12 +382,14 @@ public:
 	}
 
 
+
+
 	// end popup
 	void end_popup() {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (!popup_mode_initialization)
+		if (!popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 
 		sweep_popup_all();
@@ -374,8 +398,10 @@ public:
 		f_messege.process_popup_close_messege();
 
 		framework_pause = false;
-		popup_mode_initialization = false;
+		popup_initializtion = false;
 	}
+
+
 
 
 	//add popup object
@@ -396,7 +422,7 @@ public:
 
 		else {
 			if (layer >= NUMBER_OF_POPUP_LAYER || layer < 0) {
-				if (popup_mode_initialization)
+				if (popup_initializtion)
 					f_messege.process_popup_err("FWL popup object addition error::Layer out of bounds::main container");
 				else
 					f_messege.process_popup_err("FWL popup init error::Layer out of bounds::main container");
@@ -407,12 +433,14 @@ public:
 	}
 
 
+
+
 	// delete popup object
 	void delete_popup_object(POPUP_FUNCTION* object, int layer) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (!popup_mode_initialization)
+		if (!popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 
 		if (layer >= NUMBER_OF_POPUP_LAYER || layer < 0)
@@ -430,12 +458,14 @@ public:
 	}
 
 
+
+
 	// return number of popup objects of specific popup layer
 	size_t popup_layer_size(int layer) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (!popup_mode_initialization)
+		if (!popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 
 		if (layer >= NUMBER_OF_POPUP_LAYER || layer < 0)
@@ -446,12 +476,14 @@ public:
 	}
 
 
+
+
 	// connect ptr to specific popup layer
 	POPUP_FUNCTION* connect_popup_ptr(int layer, int index) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (!popup_mode_initialization)
+		if (!popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 
 		if (layer >= NUMBER_OF_POPUP_LAYER || layer < 0)
@@ -465,12 +497,14 @@ public:
 	}
 
 
+
+
 	// delete popup objects of specific popup layer
 	void sweep_popup_layer(int layer) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (!popup_mode_initialization)
+		if (!popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 		
 		if (layer >= NUMBER_OF_POPUP_LAYER || layer < 0)
@@ -488,12 +522,14 @@ public:
 	}
 
 
+
+
 	// delete popup object all
 	void sweep_popup_all() {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
-		if (!popup_mode_initialization)
+		if (!popup_initializtion)
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 
 
