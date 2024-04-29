@@ -5,30 +5,33 @@
 #include <string>
 
 #define          USING_FWL
-#define          NUMBER_OF_LAYER 7
+#define          NUMBER_OF_LAYER 1
 
 #define          USING_POPUP_MODE
-#define          NUMBER_OF_POPUP_LAYER 7
+#define          NUMBER_OF_POPUP_LAYER 1
 
 #define          USING_DEBUG_MESSEGE
+
 
 
 class MODELIST {
 public:
 	// add mode list here...
 	std::vector<std::string> mode_list = 
-	{ "mode1", "mode2"};
+	{ "mode1", };
 
 #ifdef USING_POPUP_MODE
 #if NUMBER_OF_POPUP_LAYER
 
 	// add popup mode list here...
 	std::vector<std::string> popup_mode_list =
-	{ "popup1", "popup2"};
+	{ "popup1", };
 
 #endif
 #endif
 };
+
+
 
 class FUNCTION {
 public:
@@ -41,6 +44,7 @@ public:
 
 	virtual     ~FUNCTION() {}
 };
+
 
 
 #ifdef USING_POPUP_MODE

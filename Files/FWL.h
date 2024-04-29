@@ -24,8 +24,8 @@ private:
 
 	bool framework_start{};
 	bool framework_initialization{};
-	bool framework_changing_mode{};
-	bool framework_pause{};
+	bool changing_mode{};
+	bool pause{};
 
 #ifdef USING_POPUP_MODE
 #if NUMBER_OF_POPUP_LAYER
@@ -58,7 +58,7 @@ public:
 				for (auto it = main_cont[i].begin(); it != main_cont[i].end();) {
 					auto ptr = *it;
 					if (ptr != nullptr) {
-						if (!framework_pause && !framework_changing_mode) {
+						if (!pause && !changing_mode) {
 							ptr->update();
 							ptr->check_collision();
 						}
@@ -82,7 +82,7 @@ public:
 						auto ptr = *it;
 
 						if (ptr != nullptr) {
-							if (!framework_changing_mode) {
+							if (!changing_mode) {
 								ptr->update();
 								ptr->check_collision();
 							}
@@ -145,6 +145,7 @@ public:
 	void change_mode(func modefunc, std::string modename) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
+
 		if (current_mode == modename)
 			f_messege.process_err("FWL mode error::Same mode as current mode");
 
@@ -157,7 +158,7 @@ public:
 		f_messege.save_next_name(modename);
 
 
-		framework_changing_mode = true;
+		changing_mode = true;
 
 #ifdef USING_POPUP_MODE
 #if NUMBER_OF_POPUP_LAYER
@@ -178,7 +179,7 @@ public:
 		f_messege.save_curr_name(modename);
 		f_messege.process_mode_change_messege();
 
-		framework_changing_mode = false;
+		changing_mode = false;
 	}
 
 
@@ -190,7 +191,7 @@ public:
 			f_messege.process_err("FWL init error::Invalid initialization");
 
 
-		if (framework_changing_mode) {
+		if (changing_mode) {
 			if (layer >= NUMBER_OF_LAYER || layer < 0)
 				f_messege.process_err("FWL object addition error::Layer out of bounds::temp container");
 
@@ -329,7 +330,7 @@ public:
 			f_messege.process_popup_err("FWL popup init error::Invalid mode", modename);
 		f_messege.save_next_popup_name(modename);
 
-		framework_pause = true;
+		pause = true;
 
 		modefunc();
 		prev_mode_name = current_mode; // save main mode name
@@ -337,8 +338,8 @@ public:
 		f_messege.save_curr_popup_name(modename);
 
 		if (!pause_option)  // stop main mode's update if pause option is true
-			framework_pause = false;
-		f_messege.save_is_pause(framework_pause);
+			pause = false;
+		f_messege.save_is_pause(pause);
 		f_messege.process_popup_init_messege();
 
 		popup_initializtion = true;
@@ -364,7 +365,7 @@ public:
 		f_messege.save_next_popup_name(modename);
 
 
-		framework_changing_mode = true;
+		changing_mode = true;
 
 		modefunc();
 
@@ -378,7 +379,7 @@ public:
 		f_messege.save_curr_popup_name(modename);
 		f_messege.process_popup_mode_change_messege();
 
-		framework_changing_mode = false;
+		changing_mode = false;
 	}
 
 
@@ -397,7 +398,7 @@ public:
 		current_mode = prev_mode_name;
 		f_messege.process_popup_close_messege();
 
-		framework_pause = false;
+		pause = false;
 		popup_initializtion = false;
 	}
 
@@ -413,7 +414,7 @@ public:
 			f_messege.process_popup_err("FWL popup init error::Invalid initialization");
 
 
-		if (framework_changing_mode) {
+		if (changing_mode) {
 			if (layer >= NUMBER_OF_POPUP_LAYER || layer < 0)
 				f_messege.process_popup_err("FWL popup object addition error::Layer out of bounds::temp container");
 
