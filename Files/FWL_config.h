@@ -11,6 +11,7 @@
 #define          NUMBER_OF_POPUP_LAYER 1
 
 #define          USING_DEBUG_MESSEGE
+#define          USING_FRAME_TIME
 
 
 
