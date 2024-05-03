@@ -22,6 +22,8 @@ private:
 	std::vector<std::string> mode_list;
 	std::string prev_mode_name{};
 
+	std::string current_mode{};
+
 	bool framework_start{};
 	bool framework_initialization{};
 	bool changing_mode{};
@@ -39,20 +41,34 @@ private:
 #endif
 
 	typedef void (*func)(void);
+
+#ifdef USING_FRAME_TIME
 	clock_t   start_time{}, end_time{};
+#endif
+
 	FWL_MESSEGE f_messege;
 
 
 public:
-	std::string current_mode{};
+
+
+#ifdef USING_FRAME_TIME
+	// frame time
 	double ft{};
+#endif
+
+
+	// get current mode name
+	std::string get_current_mode{ return current_mode; }
 
 
 
 
 	void routine() {
 		if (framework_initialization) {
+#ifdef USING_FRAME_TIME
 			start_time = clock();
+#endif
 
 			for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
 				for (auto it = main_cont[i].begin(); it != main_cont[i].end();) {
@@ -100,8 +116,10 @@ public:
 #endif
 #endif
 
+#ifdef USING_FRAME_TIME
 			end_time = clock();
 			ft = (double)(end_time - start_time) / 1000;
+#endif
 		}
 	}
 
@@ -234,8 +252,8 @@ public:
 
 
 
-	// connect ptr to other layer
-	FUNCTION* connect_ptr(int layer, int index) {
+	// get ptr from other object
+	FUNCTION* get_ptr(int layer, int index) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
@@ -253,7 +271,7 @@ public:
 
 
 	// return number of objects of specific layer
-	size_t layer_size(int layer) {
+	size_t get_layer_size(int layer) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
@@ -315,7 +333,7 @@ public:
 #if NUMBER_OF_POPUP_LAYER
 
 	//init popup
-	void init_popup(func modefunc, std::string modename, bool pause_option = false) {
+	void init_popup(func modefunc, std::string modename, bool main_mode_pause_option = false) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
@@ -337,7 +355,7 @@ public:
 		current_mode = modename;
 		f_messege.save_curr_popup_name(modename);
 
-		if (!pause_option)  // stop main mode's update if pause option is true
+		if (!main_mode_pause_option)  // stop main mode's update if pause option is true
 			pause = false;
 		f_messege.save_is_pause(pause);
 		f_messege.process_popup_init_messege();
@@ -462,7 +480,7 @@ public:
 
 
 	// return number of popup objects of specific popup layer
-	size_t popup_layer_size(int layer) {
+	size_t get_popup_layer_size(int layer) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
@@ -479,8 +497,8 @@ public:
 
 
 
-	// connect ptr to specific popup layer
-	POPUP_FUNCTION* connect_popup_ptr(int layer, int index) {
+	// get ptr from other popup object
+	POPUP_FUNCTION* get_popup_ptr(int layer, int index) {
 		if (!framework_initialization)
 			f_messege.process_err("FWL init error::Invalid initialization");
 
