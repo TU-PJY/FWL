@@ -59,35 +59,19 @@ public:
 	
 #ifdef USING_FRAME_TIME
 	// set frame time mul value
-	void set_frame_time_mul_value(double value) { 
-		if (framework_initialization)
-			f_messege.process_err("FWL init error::Reapeted initialization");
-
-
-		frame_time_mul_value = value; 
-	}
+	void set_frame_time_mul_value(double value) { frame_time_mul_value = value; }
 
 
 
 
 	//reset frame time mul value to defalut
-	void set_frame_time_mul_value_to_defalut() {
-		if (framework_initialization)
-			f_messege.process_err("FWL init error::Reapeted initialization");
-
-
-		frame_time_mul_value = 1;
-	}
+	void set_frame_time_mul_value_to_defalut() { frame_time_mul_value = 1; }
 
 
 
 
 	// multiply movement with frame time
 	double calc_ft(double movement, double additional_value = 1) { 
-		if (framework_initialization)
-			f_messege.process_err("FWL init error::Reapeted initialization");
-
-
 		return movement * frame_time * frame_time_mul_value * additional_value; 
 	}
 
