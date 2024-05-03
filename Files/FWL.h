@@ -42,20 +42,57 @@ private:
 
 	typedef void (*func)(void);
 
+// frame time
 #ifdef USING_FRAME_TIME
 	clock_t   start_time{}, end_time{};
+	double frame_time{};
+	double frame_time_mul_value = 1;
 #endif
 
+	// FWL error processing class
 	FWL_MESSEGE f_messege;
 
 
 public:
 
 
+	
 #ifdef USING_FRAME_TIME
-	// frame time
-	double ft{};
+	// set frame time mul value
+	void set_frame_time_mul_value(double value) { 
+		if (framework_initialization)
+			f_messege.process_err("FWL init error::Reapeted initialization");
+
+
+		frame_time_mul_value = value; 
+	}
+
+
+
+
+	//reset frame time mul value to defalut
+	void set_frame_time_mul_value_to_defalut() {
+		if (framework_initialization)
+			f_messege.process_err("FWL init error::Reapeted initialization");
+
+
+		frame_time_mul_value = 1;
+	}
+
+
+
+
+	// multiply movement with frame time
+	double calc_ft(double movement, double additional_value = 1) { 
+		if (framework_initialization)
+			f_messege.process_err("FWL init error::Reapeted initialization");
+
+
+		return movement * frame_time * frame_time_mul_value * additional_value; 
+	}
+
 #endif
+
 
 
 	// get current mode name
@@ -118,7 +155,7 @@ public:
 
 #ifdef USING_FRAME_TIME
 			end_time = clock();
-			ft = (double)(end_time - start_time) / 1000;
+			frame_time = (double)(end_time - start_time) / 1000;
 #endif
 		}
 	}
@@ -417,6 +454,7 @@ public:
 		f_messege.process_popup_close_messege();
 
 		pause = false;
+		popup_mode_start = false;
 		popup_initializtion = false;
 	}
 
