@@ -80,7 +80,7 @@ public:
 
 
 	// get current mode name
-	std::string get_current_mode{ return current_mode; }
+	std::string get_current_mode() { return current_mode; }
 
 
 
