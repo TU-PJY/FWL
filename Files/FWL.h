@@ -560,6 +560,8 @@ public:
 
 			++it;
 		}
+
+		popup_cont[layer].clear();
 	}
 
 
@@ -584,6 +586,9 @@ public:
 				++it;
 			}
 		}
+
+		for (int i = 0; i < NUMBER_OF_LAYER; ++i) 
+			popup_cont[i].clear();
 	}
 
 #endif
