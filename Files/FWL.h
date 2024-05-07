@@ -326,6 +326,18 @@ public:
 
 
 
+	// find many objects ptr, use with for() or while()
+	FUNCTION* find_object_from_index(int layer, int index, std::string tag) {
+		auto ptr = get_ptr(layer, index);
+
+		if(ptr->get_tag() == tag)
+			return main_cont[layer][index];
+		else
+			return nullptr;
+	}
+
+
+
 
 	// return number of objects of specific layer
 	size_t get_layer_size(int layer) {
@@ -603,6 +615,18 @@ public:
 			return nullptr;
 	}
 
+
+
+
+	// find many popup object ptr, use with for() or while()
+	POPUP_FUNCTION* find_popup_object_from_index(int layer, int index, std::string tag) {
+		auto ptr = get_popup_ptr(layer, index);
+
+		if(ptr->get_tag() == tag)
+			return popup_cont[layer][index];
+		else
+			return nullptr;
+	}
 
 
 
