@@ -70,6 +70,12 @@ public:
 
 
 
+#ifdef USING_FRAME_TIME_OUTSIDE
+	// set frame time from outside
+	void set_frame_time(double time) { frame_time = time; }
+#endif
+
+
 
 	// multiply movement with frame time
 	double calc_ft(double movement, double additional_value = 1) { 
@@ -81,7 +87,7 @@ public:
 
 
 	// get current mode name
-	std::string get_current_mode() { return current_mode; }
+	std::string get_current_mode() const { return current_mode; }
 
 
 
@@ -89,7 +95,9 @@ public:
 	void routine() {
 		if (framework_initialization) {
 #ifdef USING_FRAME_TIME
+#ifndef USING_FRAME_TIME_OUTSIDE
 			start_time = clock();
+#endif
 #endif
 
 			for (int i = 0; i < NUMBER_OF_LAYER; ++i) {
@@ -139,8 +147,10 @@ public:
 #endif
 
 #ifdef USING_FRAME_TIME
+#ifndef USING_FRAME_TIME_OUTSIDE
 			end_time = clock();
 			frame_time = (double)(end_time - start_time) / 1000;
+#endif
 #endif
 		}
 	}
@@ -287,6 +297,31 @@ public:
 			return nullptr;
 		else
 			return main_cont[layer][index];
+	}
+
+
+
+
+	// find object ptr
+	FUNCTION* find_object(int layer, std::string tag) {
+		FUNCTION* obj{};
+
+		bool obj_find{};
+
+		for (int i = 0; i < main_cont[layer].size(); ++i) {
+			auto ptr = get_ptr(layer, i);
+
+			if (ptr != nullptr && ptr->get_tag() == tag) {
+				obj = ptr;
+				obj_find = true;
+				break;
+			}
+		}
+
+		if (obj_find)
+			return obj;
+		else
+			return nullptr;
 	}
 
 
@@ -542,6 +577,32 @@ public:
 		else
 			return popup_cont[layer][index];
 	}
+
+
+
+
+	// find popup object ptr
+	POPUP_FUNCTION* find_popup_object(int layer, std::string tag) {
+		POPUP_FUNCTION* obj{};
+
+		bool obj_find{};
+
+		for (int i = 0; i < popup_cont[layer].size(); ++i) {
+			auto ptr = get_popup_ptr(layer, i);
+
+			if (ptr != nullptr && ptr->get_tag() == tag) {
+				obj = ptr;
+				obj_find = true;
+				break;
+			}
+		}
+
+		if (obj_find)
+			return obj;
+		else
+			return nullptr;
+	}
+
 
 
 

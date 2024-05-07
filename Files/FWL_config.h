@@ -12,6 +12,7 @@
 
 #define          USING_DEBUG_MESSEGE
 #define          USING_FRAME_TIME
+#define          USING_FRAME_TIME_OUTSIDE
 
 
 
@@ -41,6 +42,8 @@ public:
 	virtual void render() {}
 	virtual void check_delete() {}
 
+	virtual std::string get_tag() const { return {}; }
+
 	// define user function here...
 
 	virtual     ~FUNCTION() {}
@@ -57,6 +60,8 @@ public:
 	virtual void check_collision() {}
 	virtual void render() {}
 	virtual void check_delete() {}
+
+	virtual std::string get_tag() const { return {}; }
 
 	// define user function here...
 
