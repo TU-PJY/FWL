@@ -5,10 +5,10 @@
 #include <string>
 
 #define          USING_FWL
-#define          NUMBER_OF_LAYER 1
+#define          N_MAIN_LAYER 1
 
-#define          USING_POPUP_MODE
-#define          NUMBER_OF_POPUP_LAYER 1
+#define          USING_SUB_MODE
+#define          N_SUB_LAYER 1
 
 #define          USING_DEBUG_MESSEGE
 #define          USING_FRAME_TIME
@@ -19,15 +19,15 @@
 class MODELIST {
 public:
 	// add mode list here...
-	std::vector<std::string> mode_list = 
-	{ "mode1", };
+	std::vector<std::string> MainModeList = 
+	{ "main_mode1", };
 
-#ifdef USING_POPUP_MODE
-#if NUMBER_OF_POPUP_LAYER
+#ifdef USING_SUB_MODE
+#if N_SUB_LAYER
 
 	// add popup mode list here...
-	std::vector<std::string> popup_mode_list =
-	{ "popup1", };
+	std::vector<std::string> SubModeList =
+	{ "sub_mode1", };
 
 #endif
 #endif
@@ -35,37 +35,35 @@ public:
 
 
 
-class FUNCTION {
+class MAIN_CLS {
 public:
-	virtual void update() {}
-	virtual void check_collision() {}
-	virtual void render() {}
-	virtual void check_delete() {}
-
-	virtual std::string get_tag() const { return {}; }
+	virtual void Update() {}
+	virtual void CheckCollision() {}
+	virtual void Render() {}
+	virtual void CheckDelete() {}
+	virtual std::string GetTag() const { return {}; }
 
 	// define user function here...
 
-	virtual     ~FUNCTION() {}
+	virtual     ~MAIN_CLS() {}
 };
 
 
 
-#ifdef USING_POPUP_MODE
-#if NUMBER_OF_POPUP_LAYER
+#ifdef USING_SUB_MODE
+#if N_SUB_LAYER
 
-class POPUP_FUNCTION {
+class SUB_CLS {
 public:
-	virtual void update() {}
-	virtual void check_collision() {}
-	virtual void render() {}
-	virtual void check_delete() {}
-
-	virtual std::string get_tag() const { return {}; }
+	virtual void Update() {}
+	virtual void CheckCollision() {}
+	virtual void Render() {}
+	virtual void CheckDelete() {}
+	virtual std::string GetTag() const { return {}; }
 
 	// define user function here...
 
-	virtual     ~POPUP_FUNCTION() {}
+	virtual     ~SUB_CLS() {}
 };
 
 #endif
