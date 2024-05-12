@@ -46,7 +46,6 @@ private:
 
 	// for debug messeges
 	bool					 DBG_INIT_SUB_MODE{};
-
 	bool					 DBG_SWITCH_MAIN_MODE{};
 	bool					 DBG_SWITCH_SUB_MODE{};
 
@@ -238,7 +237,7 @@ public:
 		if (!InStartMainMode)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 
-		if (DBG_SWITCH_SUB_MODE)
+		if (DBG_SWITCH_SUB_MODE || DBG_INIT_SUB_MODE)
 			F_Messege.SUB_ERROR(INC_FUNC_IN_S_SWITCH);
 
 
