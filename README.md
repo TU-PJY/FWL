@@ -2,7 +2,7 @@
  C++ FrameWork Library
 
  FWL은 클래스 객체들을 편리하게 관리할 수 있도록 해주는 프레임워크 라이브러리입니다.  
- 외부 라이브러리에 의존하지 않으므로, MFC, WIN API, OpenGL, DirectX 등 다양한 C/C++ 개발 환경에서 사용할 수 있습니다.  
+ 외부 라이브러리에 의존하지 않으므로, MFC, WIN API, OpenGL, DirectX 등 다양한 C++ 개발 환경에서 사용할 수 있습니다.  
  FWL은 다음과 같은 기능들을 지원합니다.  
 
  - 사용자 옵션 선택  
