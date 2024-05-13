@@ -556,9 +556,9 @@ public:
 		else {
 			if (Layer >= N_SUB_LAYER || Layer < 0) {
 				if (SubModeInitState)
-					F_Messege.ProcessPopupModeError(LOB_S_IN_ADD);
+					F_Messege.SUB_ERROR(LOB_S_IN_ADD);
 				else
-					F_Messege.ProcessPopupModeError(LOB_S_IN_S_INIT);
+					F_Messege.SUB_ERROR(LOB_S_IN_S_INIT);
 			}
 			
 			SubCont[Layer].push_back(Object);
