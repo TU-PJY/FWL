@@ -22,15 +22,10 @@ public:
 	std::vector<std::string> MainModeList = 
 	{ "main_mode1", };
 
-#ifdef USING_SUB_MODE
-#if N_SUB_LAYER
 
 	// add popup mode list here...
 	std::vector<std::string> SubModeList =
 	{ "sub_mode1", };
-
-#endif
-#endif
 };
 
 
@@ -50,10 +45,6 @@ public:
 };
 
 
-
-#ifdef USING_SUB_MODE
-#if N_SUB_LAYER
-
 class SUB_CLS {
 public:
 	virtual void Update() {}
@@ -68,7 +59,5 @@ public:
 	virtual     ~SUB_CLS() {}
 };
 
-#endif
-#endif
 
 #endif
