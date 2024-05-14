@@ -389,7 +389,9 @@ public:
 			F_Messege.MAIN_ERROR(LOB_M_IN_DELETE);
 
 
-		for (int i = 0; i < MainCont[i].size(); ++i) {
+		size_t num = MainCont[Layer].size();
+
+		for (int i = 0; i < num; ++i) {
 			auto Target = MainObjPtr(Layer, i);
 			if (Target != nullptr && Target->GetTag() == Tag) {
 				Target->ActivateDeleteFlag(true);
@@ -409,7 +411,9 @@ public:
 			F_Messege.MAIN_ERROR(LOB_M_IN_DELETE);
 
 
-		for (int i = 0; i < MainCont[i].size(); ++i) {
+		size_t num = MainCont[Layer].size();
+
+		for (int i = 0; i < num; ++i) {
 			auto Target = MainObjPtr(Layer, i);
 			if (Target != nullptr && Target->GetTag() == Tag)
 				Target->ActivateDeleteFlag(true);
@@ -421,8 +425,9 @@ public:
 
 	void DeleteMainObj_Entire(std::string Tag) {
 		for (int i = 0; i < N_MAIN_LAYER; ++i) {
+			size_t num = MainCont[i].size();
 
-			for (int j = 0; j < MainCont[i].size(); ++j) {
+			for (int j = 0; j < num; ++j) {
 				auto Target = MainObjPtr(i, j);
 				if (Target != nullptr && Target->GetTag() == Tag)
 					Target->ActivateDeleteFlag(true);
@@ -475,10 +480,11 @@ public:
 
 
 		MAIN_CLS* Obj{};
-
 		bool ObjFind{};
 
-		for (int i = 0; i < MainCont[Layer].size(); ++i) {
+		size_t num = MainCont[Layer].size();
+
+		for (int i = 0; i < num; ++i) {
 			auto Ptr = MainObjPtr(Layer, i);
 
 			if (Ptr != nullptr && Ptr->GetTag() == Tag) {
@@ -504,14 +510,15 @@ public:
 
 
 		MAIN_CLS* Obj{};
-
 		bool ObjFind{};
 
 		for (int i = 0; i < N_MAIN_LAYER; ++i) {
 			if (ObjFind)
 				break;
 
-			for (int j = 0; j < MainCont[i].size(); ++j) {
+			size_t num = MainCont[i].size();
+
+			for (int j = 0; j < num; ++j) {
 				auto Ptr = MainObjPtr(i, j);
 				if (Ptr != nullptr && Ptr->GetTag() == Tag) {
 					Obj = Ptr;
@@ -732,7 +739,9 @@ public:
 			F_Messege.SUB_ERROR(LOB_S_IN_DELETE);
 
 
-		for (int i = 0; i < SubCont[i].size(); ++i) {
+		size_t num = SubCont[Layer].size();
+
+		for (int i = 0; i < num; ++i) {
 			auto Target = SubObjPtr(Layer, i);
 			if (Target != nullptr && Target->GetTag() == Tag) {
 				Target->ActivateDeleteFlag(true);
@@ -754,7 +763,10 @@ public:
 		if (Layer >= N_SUB_LAYER || Layer < 0)
 			F_Messege.SUB_ERROR(LOB_S_IN_DELETE);
 
-		for (int i = 0; i < SubCont[i].size(); ++i) {
+
+		size_t num = SubCont[Layer].size();
+
+		for (int i = 0; i < num; ++i) {
 			auto Target = SubObjPtr(Layer, i);
 			if (Target != nullptr && Target->GetTag() == Tag)
 				Target->ActivateDeleteFlag(true);
@@ -766,8 +778,9 @@ public:
 
 	void DeleteSubObj_Entire(std::string Tag) {
 		for (int i = 0; i < N_SUB_LAYER; ++i) {
+			size_t num = SubCont[i].size();
 
-			for (int j = 0; j < SubCont[i].size(); ++j) {
+			for (int j = 0; j < num; ++j) {
 				auto Target = SubObjPtr(i, j);
 				if (Target != nullptr && Target->GetTag() == Tag)
 					Target->ActivateDeleteFlag(true);
@@ -829,10 +842,11 @@ public:
 
 
 		SUB_CLS* Obj{};
-
 		bool ObjFind{};
 
-		for (int i = 0; i < SubCont[Layer].size(); ++i) {
+		size_t num = SubCont[Layer].size();
+
+		for (int i = 0; i < num; ++i) {
 			auto Ptr = SubObjPtr(Layer, i);
 
 			if (Ptr != nullptr && Ptr->GetTag() == Tag) {
@@ -858,14 +872,15 @@ public:
 
 
 		SUB_CLS* Obj{};
-
 		bool ObjFind{};
 
 		for (int i = 0; i < N_SUB_LAYER; ++i) {
 			if (ObjFind)
 				break;
 
-			for (int j = 0; j < SubCont[i].size(); ++j) {
+			size_t num = SubCont[i].size();
+
+			for (int j = 0; j < num; ++j) {
 				auto Ptr = SubObjPtr(i, j);
 				if (Ptr != nullptr && Ptr->GetTag() == Tag) {
 					Obj = Ptr;
