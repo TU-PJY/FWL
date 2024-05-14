@@ -23,6 +23,7 @@ private:
 
 	std::string              PrevModeName{};
 	std::string              CurrentModeName{};
+	std::string              CurrentMainModeName{};
 
 	bool                     InStartMainMode{};
 	bool					 MainModeInitState{};
@@ -34,6 +35,8 @@ private:
 	std::array<std::deque<SUB_CLS*>, N_SUB_LAYER> SubTempCont{};
 
 	std::vector<std::string> SubModeList;
+
+	std::string              CurrentSubModeName{};
 
 	bool					 InStartSubMode{};
 	bool					 SubModeInitState{};
@@ -72,6 +75,8 @@ private:
 	}
 
 
+
+
 	// delete objects of specific layer
 	void ClearMainLayer(int Layer) {
 		for (auto It = MainCont[Layer].begin(); It != MainCont[Layer].end();) {
@@ -83,6 +88,8 @@ private:
 			++It;
 		}
 	}
+
+
 
 
 	// delete all object
@@ -113,6 +120,8 @@ private:
 	}
 
 
+
+
 	// delete popup objects of specific popup layer
 	void ClearSubLayer(int Layer) {
 		for (auto It = SubCont[Layer].begin(); It != SubCont[Layer].end();) {
@@ -127,6 +136,8 @@ private:
 		if (InEndSubMode)
 			SubCont[Layer].clear();
 	}
+
+
 
 
 	// delete popup object all
@@ -161,7 +172,6 @@ public:
 	//reset frame time mul value to defalut
 	void ResetFrameTimeMul() { FrameTimeMulValue = 1; }
 
-
 #ifdef USING_FRAME_TIME_OUTSIDE
 	// input frame time from outside
 	void InputFrameTime(double time) { FrameTime = time; }
@@ -177,6 +187,15 @@ public:
 	// get current mode name
 	std::string CurrentMode() const { return CurrentModeName; }
 
+	// get current main mode name
+	std::string CurrentMainMode() const { return CurrentMainModeName; }
+
+#ifdef USING_SUB_MODE
+#if N_SUB_LAYER
+	// get current sub mode name
+	std::string CurrentSubMode() const { return CurrentSubModeName; }
+#endif
+#endif
 
 	void Routine() {
 		if (MainModeInitState) {
@@ -267,6 +286,7 @@ public:
 		MainModeFunc();
 
 		CurrentModeName = MainModeName;
+		CUrrentMainModeName = MainModeName;
 
 		F_Messege.SV_CURR_M_MODE_NAME(MainModeName);
 		F_Messege.FWL_INIT_MSG();
@@ -315,6 +335,7 @@ public:
 		}
 
 		CurrentModeName = MainModeName;
+		CUrrentMainModeName = MainModeName;
 
 		F_Messege.SV_CURR_M_MODE_NAME(MainModeName);
 		F_Messege.MAIN_MODE_SWITCH_MSG();
@@ -582,8 +603,11 @@ public:
 		PauseState = true;
 
 		SubModeFunc();
+
 		PrevModeName = CurrentModeName; // save main mode name
 		CurrentModeName = SubModeName;
+		CurrentSubModeName = SubModeName;
+
 		F_Messege.SV_CURR_S_MODE_NAME(SubModeName);
 
 		if (!MainModePauseOption)  // stop main mode's update if pause option is true
@@ -632,6 +656,8 @@ public:
 		}
 
 		CurrentModeName = SubModeName;
+		CurrentSubModeName = SubModeName;
+
 		F_Messege.SV_CURR_S_MODE_NAME(SubModeName);
 		F_Messege.SUB_MODE_SWITCH_MSG();
 
@@ -658,6 +684,8 @@ public:
 		ClearSubAll();
 
 		CurrentModeName = PrevModeName;
+		CurrentSubModeName = "";
+
 		F_Messege.SUB_END_MSG();
 
 		PauseState = false;
