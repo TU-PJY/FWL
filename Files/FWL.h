@@ -66,103 +66,6 @@ private:
 	FWL_MESSEGE				 F_Messege;
 
 
-	// get obj ptr from other object
-	MAIN_CLS* MainObjPtr(int Layer, int Index) {
-		if (Index >= MainCont[Layer].size())
-			return nullptr;
-		else
-			return MainCont[Layer][Index];
-	}
-
-
-
-
-	// delete objects of specific layer
-	void ClearMainLayer(int Layer) {
-		for (auto It = MainCont[Layer].begin(); It != MainCont[Layer].end();) {
-			auto Target = std::find(MainCont[Layer].begin(), MainCont[Layer].end(), *It);
-
-			delete* Target;
-			*Target = nullptr;
-
-			++It;
-		}
-	}
-
-
-
-
-	// delete all object
-	void ClearMainAll() {
-		for (int i = 0; i < N_MAIN_LAYER; ++i) {
-			for (auto It = MainCont[i].begin(); It != MainCont[i].end();) {
-				auto Target = std::find(MainCont[i].begin(), MainCont[i].end(), *It);
-
-				delete* Target;
-				*Target = nullptr;
-
-				++It;
-			}
-		}
-	}
-
-
-
-#ifdef USING_SUB_MODE
-#if N_SUB_LAYER
-
-	// get ptr from other popup object
-	SUB_CLS* SubObjPtr(int Layer, int Index) {
-		if (Index >= SubCont[Layer].size())
-			return nullptr;
-		else
-			return SubCont[Layer][Index];
-	}
-
-
-
-
-	// delete popup objects of specific popup layer
-	void ClearSubLayer(int Layer) {
-		for (auto It = SubCont[Layer].begin(); It != SubCont[Layer].end();) {
-			auto Target = std::find(SubCont[Layer].begin(), SubCont[Layer].end(), *It);
-
-			delete* Target;
-			*Target = nullptr;
-
-			++It;
-		}
-
-		if (InEndSubMode)
-			SubCont[Layer].clear();
-	}
-
-
-
-
-	// delete popup object all
-	void ClearSubAll() {
-		for (int i = 0; i < N_MAIN_LAYER; ++i) {
-			for (auto It = SubCont[i].begin(); It != SubCont[i].end();) {
-				auto Target = std::find(SubCont[i].begin(), SubCont[i].end(), *It);
-
-				delete* Target;
-				*Target = nullptr;
-
-				++It;
-			}
-		}
-
-		if (InEndSubMode)
-			for (int i = 0; i < N_SUB_LAYER; ++i)
-				SubCont[i].clear();
-	}
-
-#endif
-#endif
-
-
-
 public:
 
 #ifdef USING_FRAME_TIME
@@ -178,7 +81,7 @@ public:
 #endif
 
 	// multiply frame time
-	double Ftime(double movement, double additional_value = 1) { 
+	double FT(double movement, double additional_value = 1) { 
 		return movement * FrameTime * FrameTimeMulValue * additional_value; 
 	}
 
@@ -949,6 +852,104 @@ public:
 
 #endif
 #endif
+
+
+private:
+	// get obj ptr from other object
+	MAIN_CLS* MainObjPtr(int Layer, int Index) {
+		if (Index >= MainCont[Layer].size())
+			return nullptr;
+		else
+			return MainCont[Layer][Index];
+	}
+
+
+
+
+	// delete objects of specific layer
+	void ClearMainLayer(int Layer) {
+		for (auto It = MainCont[Layer].begin(); It != MainCont[Layer].end();) {
+			auto Target = std::find(MainCont[Layer].begin(), MainCont[Layer].end(), *It);
+
+			delete* Target;
+			*Target = nullptr;
+
+			++It;
+		}
+	}
+
+
+
+
+	// delete all object
+	void ClearMainAll() {
+		for (int i = 0; i < N_MAIN_LAYER; ++i) {
+			for (auto It = MainCont[i].begin(); It != MainCont[i].end();) {
+				auto Target = std::find(MainCont[i].begin(), MainCont[i].end(), *It);
+
+				delete* Target;
+				*Target = nullptr;
+
+				++It;
+			}
+		}
+	}
+
+
+
+#ifdef USING_SUB_MODE
+#if N_SUB_LAYER
+
+	// get ptr from other popup object
+	SUB_CLS* SubObjPtr(int Layer, int Index) {
+		if (Index >= SubCont[Layer].size())
+			return nullptr;
+		else
+			return SubCont[Layer][Index];
+	}
+
+
+
+
+	// delete popup objects of specific popup layer
+	void ClearSubLayer(int Layer) {
+		for (auto It = SubCont[Layer].begin(); It != SubCont[Layer].end();) {
+			auto Target = std::find(SubCont[Layer].begin(), SubCont[Layer].end(), *It);
+
+			delete* Target;
+			*Target = nullptr;
+
+			++It;
+		}
+
+		if (InEndSubMode)
+			SubCont[Layer].clear();
+	}
+
+
+
+
+	// delete popup object all
+	void ClearSubAll() {
+		for (int i = 0; i < N_MAIN_LAYER; ++i) {
+			for (auto It = SubCont[i].begin(); It != SubCont[i].end();) {
+				auto Target = std::find(SubCont[i].begin(), SubCont[i].end(), *It);
+
+				delete* Target;
+				*Target = nullptr;
+
+				++It;
+			}
+		}
+
+		if (InEndSubMode)
+			for (int i = 0; i < N_SUB_LAYER; ++i)
+				SubCont[i].clear();
+	}
+
+#endif
+#endif
+
 };
 
 #endif
