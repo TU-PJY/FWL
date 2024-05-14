@@ -23,7 +23,6 @@ enum MainErrorTypes {
 	LOB_M_IN_PTR,
 	LOB_M_IN_FIND,
 	LOB_M_IN_SIZE,
-	LOB_M_IN_CLEAR_LYR
 };
 
 
@@ -42,7 +41,6 @@ enum SubErrorTypes {
 	LOB_S_IN_PTR,
 	LOB_S_IN_FIND,
 	LOB_S_IN_SIZE,
-	LOB_S_IN_CLEAR_LYR
 };
 
 
@@ -214,12 +212,6 @@ public:
 			cout << "Getting layer size out of layer bounds has been detected." << endl << endl;
 			cout << "At main mode: '" << CurrentMainModeName << "'" << endl;
 			break;
-
-		case LOB_M_IN_CLEAR_LYR:
-			cout << "FWL main mode layer clear error::Layer out of bounds" << endl;
-			cout << "Clearing layer out of layer bounds has been detected." << endl << endl;
-			cout << "At main mode: '" << CurrentMainModeName << "'" << endl;
-			break;
 		}
 #endif
 		exit(1);
@@ -320,12 +312,6 @@ public:
 		case LOB_S_IN_SIZE:
 			cout << "FWL sub mode layer size error::Layer out of bounds" << endl;
 			cout << "Getting layer size out of layer bounds has been detected." << endl << endl;
-			cout << "At sub mode: '" << CurrentSubModeName << "'" << endl;
-			break;
-
-		case LOB_S_IN_CLEAR_LYR:
-			cout << "FWL sub mode layer clear error::Layer out of bounds" << endl;
-			cout << "Clearing layer out of layer bounds has been detected." << endl << endl;
 			cout << "At sub mode: '" << CurrentSubModeName << "'" << endl;
 			break;
 		}

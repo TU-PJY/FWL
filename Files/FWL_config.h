@@ -42,6 +42,7 @@ public:
 	virtual void Render() {}
 	virtual void CheckDelete() {}
 	virtual std::string GetTag() const { return {}; }
+	virtual void ActivateDeleteFlag(bool Flag) {}
 
 	// define user function here...
 
@@ -60,6 +61,7 @@ public:
 	virtual void Render() {}
 	virtual void CheckDelete() {}
 	virtual std::string GetTag() const { return {}; }
+	virtual void ActivateDeleteFlag(bool Flag) {}
 
 	// define user function here...
 
