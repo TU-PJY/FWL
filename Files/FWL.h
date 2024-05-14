@@ -305,7 +305,7 @@ public:
 
 
 	// delete main object outside of object class
-	void DeleteMainObj_Layer(int Layer, std::string Tag) {
+	void DeleteMainObj_Layer_Single(int Layer, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 
@@ -347,7 +347,30 @@ public:
 
 
 
-	void DeleteMainObj_Entire(std::string Tag) {
+	void DeleteMainObj_Entire_Single(std::string Tag) {
+		bool ObjFind{};
+
+		for (int i = 0; i < N_MAIN_LAYER; ++i) {
+			if (ObjFind)
+				break;
+
+			size_t num = MainCont[i].size();
+
+			for (int j = 0; j < num; ++j) {
+				auto Target = MainObjPtr(i, j);
+				if (Target != nullptr && Target->GetTag() == Tag) {
+					Target->ActivateDeleteFlag(true);
+					ObjFind = true;
+					break;
+				}
+			}
+		}
+	}
+
+
+
+
+	void DeleteMainObj_Entire_All(std::string Tag) {
 		for (int i = 0; i < N_MAIN_LAYER; ++i) {
 			size_t num = MainCont[i].size();
 
@@ -395,7 +418,7 @@ public:
 
 
 	// find single object ptr on layer
-	MAIN_CLS* FindMainObj_Layer(int Layer, std::string Tag) {
+	MAIN_CLS* FindMainObj_Layer_Single(int Layer, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 
@@ -428,7 +451,7 @@ public:
 
 
 	// find single object on entire container
-	MAIN_CLS* FindMainObj_Entire(std::string Tag) {
+	MAIN_CLS* FindMainObj_Entire_Single(std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 
@@ -659,7 +682,7 @@ public:
 
 
 	// delete main object outside of object class
-	void DeleteSubObj_Layer(int Layer, std::string Tag) {
+	void DeleteSubObj_Layer_Single(int Layer, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 
@@ -707,7 +730,45 @@ public:
 
 
 
-	void DeleteSubObj_Entire(std::string Tag) {
+	void DeleteSubObj_Entire_Single(std::string Tag) {
+		if (!MainModeInitState)
+			F_Messege.MAIN_ERROR(INV_M_INIT);
+
+		if (!SubModeInitState)
+			F_Messege.SUB_ERROR(INV_S_INIT);
+
+
+		bool ObjFind{};
+
+		for (int i = 0; i < N_SUB_LAYER; ++i) {
+			if (ObjFind)
+				break;
+
+			size_t num = SubCont[i].size();
+
+			for (int j = 0; j < num; ++j) {
+				auto Target = SubObjPtr(i, j);
+				if (Target != nullptr && Target->GetTag() == Tag) {
+					Target->ActivateDeleteFlag(true);
+					ObjFind = true;
+					break;
+				}
+			}
+		}
+	}
+
+
+
+
+
+	void DeleteSubObj_Entire_All(std::string Tag) {
+		if (!MainModeInitState)
+			F_Messege.MAIN_ERROR(INV_M_INIT);
+
+		if (!SubModeInitState)
+			F_Messege.SUB_ERROR(INV_S_INIT);
+
+
 		for (int i = 0; i < N_SUB_LAYER; ++i) {
 			size_t num = SubCont[i].size();
 
@@ -761,7 +822,7 @@ public:
 
 
 	// find popup object ptr on layer
-	SUB_CLS* FindSubObj_Layer(int Layer, std::string Tag) {
+	SUB_CLS* FindSubObj_Layer_Single(int Layer, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 
@@ -797,7 +858,10 @@ public:
 
 
 	// find popup object on entire container
-	SUB_CLS* FindSubObj_Entire(std::string Tag) {
+	SUB_CLS* FindSubObj_Entire_Single(std::string Tag) {
+		if (!MainModeInitState)
+			F_Messege.MAIN_ERROR(INV_M_INIT);
+
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
 
