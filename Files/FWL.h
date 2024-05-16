@@ -995,7 +995,7 @@ private:
 
 	// delete popup object all
 	void ClearSubAll() {
-		for (int i = 0; i < N_MAIN_LAYER; ++i) {
+		for (int i = 0; i < N_SUB_LAYER; ++i) {
 			for (auto It = SubCont[i].begin(); It != SubCont[i].end();) {
 				auto Target = std::find(SubCont[i].begin(), SubCont[i].end(), *It);
 
