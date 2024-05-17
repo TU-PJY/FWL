@@ -237,7 +237,7 @@ public:
 		}
 
 		CurrentModeName = MainModeName;
-		CUrrentMainModeName = MainModeName;
+		CurrentMainModeName = MainModeName;
 
 		F_Messege.SV_CURR_M_MODE_NAME(MainModeName);
 		F_Messege.MAIN_MODE_SWITCH_MSG();

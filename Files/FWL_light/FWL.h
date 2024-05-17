@@ -201,7 +201,7 @@ public:
 		}
 
 		CurrentModeName = MainModeName;
-		CUrrentMainModeName = MainModeName;
+		CurrentMainModeName = MainModeName;
 
 		ModeSwitchState = false;
 	}
