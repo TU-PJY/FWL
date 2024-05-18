@@ -64,20 +64,24 @@ private:
 
 
 public:
+	// Save previous main mode, current main mode, next main mode
 	void SV_NXT_M_MODE_NAME(std::string name) { NextMainModeName = name; }
 	void SV_CURR_M_MODE_NAME(std::string name) { CurrentMainModeName = name; }
 	void SV_PREV_M_MODE_NAME(std::string name) { PrevMainModeName = name; }
 
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
+	// Save previous sub mode, current sub mode, next sub mode
 	void SV_NXT_S_MODE_NAME(std::string name) { NextSubModeName = name; }
 	void SV_CURR_S_MODE_NAME(std::string name) { CurrentSubModeName = name; }
 	void SV_PREV_S_MODE_NAME(std::string name) { PrevSubModeName = name; }
 #endif
 #endif
 
+	// Saves whether the main code is paused or not
 	void SV_PAUSE_STATE(bool b) { PauseState = b; }
 
+	// Functions that output specific situations in the framework as messages
 	void FWL_INIT_MSG() {
 #ifdef USING_DEBUG_MESSEGE
 		std::cout << std::endl << "==========[MESSEGE]==========" << std::endl;
@@ -116,6 +120,7 @@ public:
 	}
 
 
+	// Handling issues that have occurred in main mode
 	void MAIN_ERROR(int ERR_TYPE, std::string INV_MODE = "") {
 		using namespace std;
 #ifdef USING_DEBUG_MESSEGE
@@ -218,9 +223,12 @@ public:
 	}
 
 
+	// Handling issues that have occurred in sub mode
 	void SUB_ERROR(int ERR_TYPE, std::string INV_MODE = "") {
 		using namespace std;
 #ifdef USING_DEBUG_MESSEGE
+#ifdef USING_SUB_MODE
+#if N_SUB_LAYER
 		cout << endl << "==========[ERROR OCCURED]==========" << endl << endl;
 
 		switch (ERR_TYPE) {
@@ -316,10 +324,13 @@ public:
 			break;
 		}
 #endif
+#endif
+#endif
 		exit(1);
 	}
 
 
+	// Loads the mode list to be used by FWL_message from the mode list you created in FWL_config
 	FWL_MESSEGE() {
 		MODELIST M;
 

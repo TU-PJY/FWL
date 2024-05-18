@@ -17,8 +17,6 @@
 class FWL {
 private:
 	std::array<std::deque<MAIN_CLS*>, N_MAIN_LAYER> MainCont{};
-	std::array<std::deque<MAIN_CLS*>, N_MAIN_LAYER> MainTempCont{};
-
 	std::vector<std::string> MainModeList;
 
 	std::string              PrevModeName{};
@@ -32,15 +30,12 @@ private:
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
 	std::array<std::deque<SUB_CLS*>, N_SUB_LAYER> SubCont{};
-	std::array<std::deque<SUB_CLS*>, N_SUB_LAYER> SubTempCont{};
-
 	std::vector<std::string> SubModeList;
 
 	std::string              CurrentSubModeName{};
 
 	bool					 InStartSubMode{};
 	bool					 SubModeInitState{};
-	bool					 InEndSubMode{};
 #endif
 #endif
 
@@ -60,46 +55,48 @@ private:
 	double					 FrameTimeMulValue = 1;
 #endif
 
+	// callable function type
 	typedef void (*func)(void);
 
-	// FWL error processing class
+	// FWL error / FWL debug messege processing class
 	FWL_MESSEGE				 F_Messege;
 
 
 public:
 
 #ifdef USING_FRAME_TIME
-	// set frame time mul value
+	// Sets the frame-time multiple
 	void SetFrameTimeMul(double value) { FrameTimeMulValue = value; }
 
-	//reset frame time mul value to defalut
+	// Sets the framerate multiple to its initial setting (x1)
 	void ResetFrameTimeMul() { FrameTimeMulValue = 1; }
 
 #ifdef USING_FRAME_TIME_OUTSIDE
-	// input frame time from outside
+	// Enter the frame time from the outside
 	void InputFrameTime(double time) { FrameTime = time; }
 #endif
 
-	// multiply frame time
+	// Multiply the frame time
 	double FT(double movement, double additional_value = 1) { 
 		return movement * FrameTime * FrameTimeMulValue * additional_value; 
 	}
 
 #endif
 
-	// get current mode name
-	std::string CurrentMode() const { return CurrentModeName; }
+	// Returns the name of the currently running mode
+	std::string CurrentMode() { return CurrentModeName; }
 
-	// get current main mode name
-	std::string CurrentMainMode() const { return CurrentMainModeName; }
+	// Returns the name of the main mode currently running
+	std::string CurrentMainMode() { return CurrentMainModeName; }
 
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
-	// get current sub mode name
-	std::string CurrentSubMode() const { return CurrentSubModeName; }
+	// Returns the name of the sub mode currently running
+	std::string CurrentSubMode() { return CurrentSubModeName; }
 #endif
 #endif
 
+	// Runs a framework routine
 	void Routine() {
 		if (MainModeInitState) {
 #ifdef USING_FRAME_TIME
@@ -107,44 +104,55 @@ public:
 			StartTime = clock();
 #endif
 #endif
+			// Main mode routine
 			for (int i = 0; i < N_MAIN_LAYER; ++i) {
 				for (auto It = MainCont[i].begin(); It != MainCont[i].end();) {
 					auto Ptr = *It;
-					if (Ptr != nullptr) {
+
+					// If the object is not nullptr, update and output the object
+					if (Ptr) {
 						if (!PauseState && !ModeSwitchState) {
 							Ptr->Update();
 							Ptr->CheckCollision();
 						}
 						Ptr->Render();
-						Ptr->CheckDelete();
-
-						++It; 
 					}
 
+					// Verify that the updated object is nullptr, and if it is nullptr, go to the else statement
+					if(Ptr)
+						++It; 
+
+					// If the object is nullptr, delete the pointer that pointed to it from the container
 					else
-						It = MainCont[i].erase(remove(MainCont[i].begin(), MainCont[i].end(), Ptr));
+						It = MainCont[i].erase(It);
 				}
 			}
 
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
+
+			// Sub mode routine
 			if (SubModeInitState) {
 				for (int i = 0; i < N_SUB_LAYER; ++i) {
 					for (auto It = SubCont[i].begin(); It != SubCont[i].end();) {
 						auto Ptr = *It;
-						if (Ptr != nullptr) {
+
+						// If the object is not nullptr, update and output the object
+						if (Ptr) {
 							if (!ModeSwitchState) {
 								Ptr->Update();
 								Ptr->CheckCollision();
 							}
 							Ptr->Render();
-							Ptr->CheckDelete();
-
-							++It;
 						}
 
+						// Verify that the updated object is nullptr, and if it is nullptr, go to the else statement
+						if (Ptr)
+							++It;
+
+						// If the object is nullptr, delete the pointer that pointed to it from the container
 						else
-							It = SubCont[i].erase(remove(SubCont[i].begin(), SubCont[i].end(), Ptr));
+							It = SubCont[i].erase(It);
 					}
 				}
 			}
@@ -163,13 +171,16 @@ public:
 
 
 
-	//init FWL
+	// Initializes the main mode
 	void InitMainMode(func MainModeFunc, std::string MainModeName) {
 		if (MainModeInitState)
 			F_Messege.MAIN_ERROR(RPT_M_INIT);
 
+
+		// Starts main mode initialization
 		InStartMainMode = true;
 
+		// Loads a list of modes created in FWL_config into the framework
 		MODELIST M;
 		MainModeList = M.MainModeList;
 
@@ -178,44 +189,48 @@ public:
 		SubModeList = M.SubModeList;
 #endif 
 #endif
-
+		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(MainModeList.begin(), MainModeList.end(), MainModeName);
 		if (Target == MainModeList.end())
 			F_Messege.MAIN_ERROR(INV_M_MODE_IN_M_INIT, MainModeName);
 
 		F_Messege.SV_NXT_M_MODE_NAME(MainModeName);
 
+		// Run the mode start function
 		MainModeFunc();
 
+		// If you successfully ran the mode start function, specify the mode name for the current mode and current main mode
 		CurrentModeName = MainModeName;
 		CurrentMainModeName = MainModeName;
 
 		F_Messege.SV_CURR_M_MODE_NAME(MainModeName);
 		F_Messege.FWL_INIT_MSG();
 
+		// Enable Main Mode Routine
 		MainModeInitState = true;
 	}
 
 
 
 
-	// change current mode
+	// Switch the currently running main mode to another main mode
 	void SwitchMainMode(func MainModeFunc, std::string MainModeName) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (CurrentModeName == MainModeName)
 			F_Messege.MAIN_ERROR(SAME_M_MODE_IN_SWITCH);
 
 
 		F_Messege.SV_PREV_M_MODE_NAME(CurrentModeName);
 
+		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(MainModeList.begin(), MainModeList.end(), MainModeName);
 		if (Target == MainModeList.end())
 			F_Messege.MAIN_ERROR(INV_M_MODE_IN_SWITCH, MainModeName);
 
 		F_Messege.SV_NXT_M_MODE_NAME(MainModeName);
 
+		// When the mode switch state is activated, all object updates in the main mode and submode are interrupted
 		ModeSwitchState = true;
 
 		// debug value
@@ -228,14 +243,13 @@ public:
 #endif
 #endif
 
+		// Delete all objects in the main mode container
+		ClearMainAll();
+
+		// Run the mode start function
 		MainModeFunc();
 
-		for (int i = 0; i < N_MAIN_LAYER; ++i) {
-			ClearMainLayer(i);
-			MainCont[i] = MainTempCont[i];
-			MainTempCont[i].clear();
-		}
-
+		// If the mode start function has been successfully executed, change the name of the current mode and current main mode
 		CurrentModeName = MainModeName;
 		CurrentMainModeName = MainModeName;
 
@@ -245,48 +259,39 @@ public:
 		// debug value
 		DBG_SWITCH_MAIN_MODE = false;
 
+		// The mode transition state is disabled and the main mode and submode object update resumes
 		ModeSwitchState = false;
 	}
 
 
 
 
-	// add object
+	// Adds an object to a specific main mode layer
 	void AddMainObj(MAIN_CLS*&& Object, int Layer) {
 		if (!InStartMainMode)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (DBG_SWITCH_SUB_MODE || DBG_INIT_SUB_MODE)
 			F_Messege.SUB_ERROR(INC_FUNC_IN_S_SWITCH);
-
-
-		if (ModeSwitchState) {
-			if (Layer >= N_MAIN_LAYER || Layer < 0)
+		if (Layer >= N_MAIN_LAYER || Layer < 0) {
+			if(MainModeInitState)
+				F_Messege.MAIN_ERROR(LOB_M_IN_ADD);
+			if (ModeSwitchState)
 				F_Messege.MAIN_ERROR(LOB_M_IN_SWITCH);
-
-			MainTempCont[Layer].push_back(Object);
+			else
+				F_Messege.MAIN_ERROR(LOB_M_IN_M_INIT);
 		}
 
-		else {
-			if (Layer >= N_MAIN_LAYER || Layer < 0) {
-				if(MainModeInitState)
-					F_Messege.MAIN_ERROR(LOB_M_IN_ADD);
-				else
-					F_Messege.MAIN_ERROR(LOB_M_IN_M_INIT);
-			}
-
-			MainCont[Layer].push_back(Object);
-		}
+		
+		MainCont[Layer].push_back(Object);
 	}
 
 
 
 
-	// delete object
+	// Delete an object from the main mode container, use within the object class
 	void DeleteMainObj(MAIN_CLS* Object, int Layer) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (Layer >= N_MAIN_LAYER || Layer < 0)
 			F_Messege.MAIN_ERROR(LOB_M_IN_DELETE);
 
@@ -303,115 +308,10 @@ public:
 
 
 
-	// delete main object outside of object class
-	void DeleteMainObj_Layer_Single(int Layer, std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (Layer >= N_MAIN_LAYER || Layer < 0)
-			F_Messege.MAIN_ERROR(LOB_M_IN_DELETE);
-
-
-		size_t num = MainCont[Layer].size();
-
-		for (int i = 0; i < num; ++i) {
-			auto Target = MainObjPtr(Layer, i);
-			if (Target != nullptr && Target->GetTag() == Tag) {
-				Target->ActivateDeleteFlag(true);
-				break;
-			}
-		}
-	}
-
-
-
-
-	void DeleteMainObj_Layer_All(int Layer, std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (Layer >= N_MAIN_LAYER || Layer < 0)
-			F_Messege.MAIN_ERROR(LOB_M_IN_DELETE);
-
-
-		size_t num = MainCont[Layer].size();
-
-		for (int i = 0; i < num; ++i) {
-			auto Target = MainObjPtr(Layer, i);
-			if (Target != nullptr && Target->GetTag() == Tag)
-				Target->ActivateDeleteFlag(true);
-		}
-	}
-
-
-
-
-	void DeleteMainObj_Entire_Single(std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		bool ObjFind{};
-
-		for (int i = 0; i < N_MAIN_LAYER; ++i) {
-			if (ObjFind)
-				break;
-
-			size_t num = MainCont[i].size();
-
-			for (int j = 0; j < num; ++j) {
-				auto Target = MainObjPtr(i, j);
-				if (Target != nullptr && Target->GetTag() == Tag) {
-					Target->ActivateDeleteFlag(true);
-					ObjFind = true;
-					break;
-				}
-			}
-		}
-	}
-
-
-
-
-	void DeleteMainObj_Entire_All(std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		for (int i = 0; i < N_MAIN_LAYER; ++i) {
-			size_t num = MainCont[i].size();
-
-			for (int j = 0; j < num; ++j) {
-				auto Target = MainObjPtr(i, j);
-				if (Target != nullptr && Target->GetTag() == Tag)
-					Target->ActivateDeleteFlag(true);
-			}
-		}
-	}
-
-
-
-
-	void DeleteMainObj_Layer_Index(int Layer, int Index, std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (Layer >= N_MAIN_LAYER || Layer < 0)
-			F_Messege.MAIN_ERROR(LOB_M_IN_FIND);
-
-
-		auto Target = MainObjPtr(Layer, Index);
-
-		if (Target != nullptr && Target->GetTag() == Tag)
-			Target->ActivateDeleteFlag(true);
-	}
-
-
-
-
-	// return number of objects of specific layer
+	// Returns the number of objects in a specific main mode layer
 	size_t MainLayerSize(int Layer) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (Layer >= N_MAIN_LAYER || Layer < 0)
 			F_Messege.MAIN_ERROR(LOB_M_IN_SIZE);
 
@@ -422,11 +322,10 @@ public:
 
 
 
-	// find single object ptr on layer
+	// Locate the pointer to a single object in the specific main mode layer
 	MAIN_CLS* FindMainObj_Layer_Single(int Layer, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (Layer >= N_MAIN_LAYER || Layer < 0)
 			F_Messege.MAIN_ERROR(LOB_M_IN_FIND);
 
@@ -439,7 +338,7 @@ public:
 		for (int i = 0; i < num; ++i) {
 			auto Ptr = MainObjPtr(Layer, i);
 
-			if (Ptr != nullptr && Ptr->GetTag() == Tag) {
+			if (Ptr && Ptr->GetTag() == Tag) {
 				Obj = Ptr;
 				ObjFind = true;
 				break;
@@ -455,7 +354,7 @@ public:
 
 
 
-	// find single object on entire container
+	// Locate the pointer to a single object in the main mode container
 	MAIN_CLS* FindMainObj_Entire_Single(std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
@@ -472,7 +371,7 @@ public:
 
 			for (int j = 0; j < num; ++j) {
 				auto Ptr = MainObjPtr(i, j);
-				if (Ptr != nullptr && Ptr->GetTag() == Tag) {
+				if (Ptr && Ptr->GetTag() == Tag) {
 					Obj = Ptr;
 					ObjFind = true;
 					break;
@@ -489,18 +388,17 @@ public:
 
 
 
-	// find many objects ptr on layer, use with for()
+	// Locate multiple objects in the specific main mode layer, use with 'for()'
 	MAIN_CLS* FindMainObj_Layer_Index(int Layer, int Index, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (Layer >= N_MAIN_LAYER || Layer < 0 )
 			F_Messege.MAIN_ERROR(LOB_M_IN_FIND);
 
 
 		auto Ptr = MainObjPtr(Layer, Index);
 
-		if (Ptr != nullptr && Ptr->GetTag() == Tag)
+		if (Ptr && Ptr->GetTag() == Tag)
 			return Ptr;
 		else
 			return nullptr;
@@ -510,38 +408,43 @@ public:
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
 
-	//init sub mode
+	// Initializes the submode
 	void InitSubMode(func SubModeFunc, std::string SubModeName, bool MainModePauseOption = false) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (SubModeInitState)
 			F_Messege.SUB_ERROR(RPT_S_INIT);
 
 
+		// Starts sub mode initialization
 		InStartSubMode = true;
-		InEndSubMode = false;
 
 		// debug value
 		DBG_INIT_SUB_MODE = true;
 
+		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(SubModeList.begin(), SubModeList.end(), SubModeName);
 		if (Target == SubModeList.end())
 			F_Messege.SUB_ERROR(INV_S_MODE_IN_S_INIT, SubModeName);
 
 		F_Messege.SV_NXT_S_MODE_NAME(SubModeName);
 
+		
 		PauseState = true;
 
+		// Run the mode start function
 		SubModeFunc();
 
-		PrevModeName = CurrentModeName; // save main mode name
+		// If the mode start function has been successfully executed, 
+		// save the main mode that was last executed and specify the current mode and the current sub mode
+		PrevModeName = CurrentModeName;
 		CurrentModeName = SubModeName;
 		CurrentSubModeName = SubModeName;
 
 		F_Messege.SV_CURR_S_MODE_NAME(SubModeName);
 
-		if (!MainModePauseOption)  // stop main mode's update if pause option is true
+		// If MainModePauseOption is set to true, pause the main mode update
+		if (!MainModePauseOption)
 			PauseState = false;
 
 		F_Messege.SV_PAUSE_STATE(PauseState);
@@ -550,41 +453,41 @@ public:
 		// debug value
 		DBG_INIT_SUB_MODE = false;
 
+		// Enable Sub Mode Routine
 		SubModeInitState = true;
 	}
 
 
 
 
-	// change mode of popup
+	// Switch the currently running sub mode to another sub mode
 	void SwitchSubMode(func SubModeFunc, std::string SubModeName) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
 
 
 		F_Messege.SV_PREV_S_MODE_NAME(CurrentModeName);
 
+		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(SubModeList.begin(), SubModeList.end(), SubModeName);
 		if (Target == SubModeList.end())
 			F_Messege.SUB_ERROR(INV_S_MODE_IN_SWITCH, SubModeName);
 
 		F_Messege.SV_NXT_S_MODE_NAME(SubModeName);
 
+		// When the mode switch state is activated, all object updates in the main mode and submode are interrupted
 		ModeSwitchState = true;
 
 		// debug value
 		DBG_SWITCH_SUB_MODE = true;
 
-		SubModeFunc();
+		// Delete all objects in the sub mode container
+		ClearSubAll();
 
-		for (int i = 0; i < N_SUB_LAYER; ++i) {
-			ClearSubLayer(i);
-			SubCont[i] = SubTempCont[i];
-			SubTempCont[i].clear();
-		}
+		// Run the mode start function
+		SubModeFunc();
 
 		CurrentModeName = SubModeName;
 		CurrentSubModeName = SubModeName;
@@ -595,30 +498,30 @@ public:
 		// debug value
 		DBG_SWITCH_SUB_MODE = false;
 
+		// The mode transition state is disabled and the main mode and submode object update resumes
 		ModeSwitchState = false;
 	}
 
 
 
 
-	// end popup mode
+	// Delete all objects in the sub mode container and exit the submode
 	void EndSubMode() {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
 
-
-		InEndSubMode = true;
-
+		// Delete all objects in the sub mode container
 		ClearSubAll();
 
+		// Change the current mode to the last main mode you ran, and delete the current submode
 		CurrentModeName = PrevModeName;
 		CurrentSubModeName = "";
 
 		F_Messege.SUB_END_MSG();
 
+		// The main mode pause is released, and the remaining submode settings are initialized
 		PauseState = false;
 		InStartSubMode = false;
 		SubModeInitState = false;
@@ -627,48 +530,36 @@ public:
 
 
 
-	//add popup object
+	// Adds an object to a specific sub mode layer
 	void AddSubObj(SUB_CLS*&& Object, int Layer) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (DBG_SWITCH_MAIN_MODE)
 			F_Messege.MAIN_ERROR(INC_FUNC_IN_M_SWITCH);
-
 		if (!InStartSubMode)
 			F_Messege.SUB_ERROR(INV_S_INIT);
-
-
-		if (ModeSwitchState) {
-			if (Layer >= N_SUB_LAYER || Layer < 0)
+		if (Layer >= N_SUB_LAYER || Layer < 0) {
+			if (SubModeInitState)
+				F_Messege.SUB_ERROR(LOB_S_IN_ADD);
+			if (ModeSwitchState) 
 				F_Messege.SUB_ERROR(LOB_S_IN_SWITCH);
-
-			SubTempCont[Layer].push_back(Object);
+			else
+				F_Messege.SUB_ERROR(LOB_S_IN_S_INIT);
 		}
+		
 
-		else {
-			if (Layer >= N_SUB_LAYER || Layer < 0) {
-				if (SubModeInitState)
-					F_Messege.SUB_ERROR(LOB_S_IN_ADD);
-				else
-					F_Messege.SUB_ERROR(LOB_S_IN_S_INIT);
-			}
-			
-			SubCont[Layer].push_back(Object);
-		}
+		SubCont[Layer].push_back(Object);
 	}
 
 
 
 
-	// delete popup object
+	// Delete an object from the sub mode container, use within the object class
 	void DeleteSubObj(SUB_CLS* Object, int Layer) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
-
 		if (Layer >= N_SUB_LAYER || Layer < 0)
 			F_Messege.SUB_ERROR(LOB_S_IN_DELETE);
 
@@ -686,136 +577,12 @@ public:
 
 
 
-	// delete main object outside of object class
-	void DeleteSubObj_Layer_Single(int Layer, std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (!SubModeInitState)
-			F_Messege.SUB_ERROR(INV_S_INIT);
-
-		if (Layer >= N_SUB_LAYER || Layer < 0)
-			F_Messege.SUB_ERROR(LOB_S_IN_DELETE);
-
-
-		size_t num = SubCont[Layer].size();
-
-		for (int i = 0; i < num; ++i) {
-			auto Target = SubObjPtr(Layer, i);
-			if (Target != nullptr && Target->GetTag() == Tag) {
-				Target->ActivateDeleteFlag(true);
-				break;
-			}
-		}
-	}
-
-
-
-
-	void DeleteSubObj_Layer_All(int Layer, std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (!SubModeInitState)
-			F_Messege.SUB_ERROR(INV_S_INIT);
-
-		if (Layer >= N_SUB_LAYER || Layer < 0)
-			F_Messege.SUB_ERROR(LOB_S_IN_DELETE);
-
-
-		size_t num = SubCont[Layer].size();
-
-		for (int i = 0; i < num; ++i) {
-			auto Target = SubObjPtr(Layer, i);
-			if (Target != nullptr && Target->GetTag() == Tag)
-				Target->ActivateDeleteFlag(true);
-		}
-	}
-
-
-
-
-	void DeleteSubObj_Entire_Single(std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (!SubModeInitState)
-			F_Messege.SUB_ERROR(INV_S_INIT);
-
-
-		bool ObjFind{};
-
-		for (int i = 0; i < N_SUB_LAYER; ++i) {
-			if (ObjFind)
-				break;
-
-			size_t num = SubCont[i].size();
-
-			for (int j = 0; j < num; ++j) {
-				auto Target = SubObjPtr(i, j);
-				if (Target != nullptr && Target->GetTag() == Tag) {
-					Target->ActivateDeleteFlag(true);
-					ObjFind = true;
-					break;
-				}
-			}
-		}
-	}
-
-
-
-
-
-	void DeleteSubObj_Entire_All(std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (!SubModeInitState)
-			F_Messege.SUB_ERROR(INV_S_INIT);
-
-
-		for (int i = 0; i < N_SUB_LAYER; ++i) {
-			size_t num = SubCont[i].size();
-
-			for (int j = 0; j < num; ++j) {
-				auto Target = SubObjPtr(i, j);
-				if (Target != nullptr && Target->GetTag() == Tag)
-					Target->ActivateDeleteFlag(true);
-			}
-		}
-	}
-
-
-
-
-	void DeleteSubObj_Layer_Index(int Layer, int Index, std::string Tag) {
-		if (!MainModeInitState)
-			F_Messege.MAIN_ERROR(INV_M_INIT);
-
-		if (!SubModeInitState)
-			F_Messege.SUB_ERROR(INV_S_INIT);
-
-		if (Layer >= N_SUB_LAYER || Layer < 0)
-			F_Messege.SUB_ERROR(LOB_S_IN_DELETE);
-
-
-		auto Target = SubObjPtr(Layer, Index);
-
-		if (Target != nullptr && Target->GetTag() == Tag)
-			Target->ActivateDeleteFlag(true);
-	}
-
-
-
-
-	// return number of popup objects of specific popup layer
+	// Returns the number of objects in a specific sub mode layer
 	size_t SubLayerSize(int Layer) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
-
 		if (Layer >= N_SUB_LAYER || Layer < 0)
 			F_Messege.SUB_ERROR(LOB_S_IN_SIZE);
 
@@ -826,14 +593,12 @@ public:
 
 
 
-	// find popup object ptr on layer
+	// Locate the pointer to a single object in the specific sub mode layer
 	SUB_CLS* FindSubObj_Layer_Single(int Layer, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
-
 		if (Layer >= N_SUB_LAYER || Layer < 0)
 			F_Messege.SUB_ERROR(LOB_S_IN_FIND);
 
@@ -846,7 +611,7 @@ public:
 		for (int i = 0; i < num; ++i) {
 			auto Ptr = SubObjPtr(Layer, i);
 
-			if (Ptr != nullptr && Ptr->GetTag() == Tag) {
+			if (Ptr && Ptr->GetTag() == Tag) {
 				Obj = Ptr;
 				ObjFind = true;
 				break;
@@ -862,11 +627,10 @@ public:
 
 
 
-	// find popup object on entire container
+	// Locate the pointer to a single object in the sub mode container
 	SUB_CLS* FindSubObj_Entire_Single(std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
 
@@ -882,7 +646,7 @@ public:
 
 			for (int j = 0; j < num; ++j) {
 				auto Ptr = SubObjPtr(i, j);
-				if (Ptr != nullptr && Ptr->GetTag() == Tag) {
+				if (Ptr && Ptr->GetTag() == Tag) {
 					Obj = Ptr;
 					ObjFind = true;
 					break;
@@ -899,21 +663,19 @@ public:
 
 
 
-	// find many popup object ptr on layer, use with for()
+	// Locate multiple objects in the specific sub mode layer, use with 'for()'
 	SUB_CLS* FindSubObj_Layer_Index(int Layer, int Index, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
-
 		if (!SubModeInitState)
 			F_Messege.SUB_ERROR(INV_S_INIT);
-
 		if (Layer >= N_SUB_LAYER || Layer < 0)
 			F_Messege.SUB_ERROR(LOB_S_IN_FIND);
 
 
 		auto Ptr = SubObjPtr(Layer, Index);
 
-		if (Ptr != nullptr && Ptr->GetTag() == Tag)
+		if (Ptr && Ptr->GetTag() == Tag)
 			return Ptr;
 		else
 			return nullptr;
@@ -924,7 +686,7 @@ public:
 
 
 private:
-	// get obj ptr from other object
+	// Locate the object pointer through a specific index of a specific main mode layer
 	MAIN_CLS* MainObjPtr(int Layer, int Index) {
 		if (Index >= MainCont[Layer].size())
 			return nullptr;
@@ -935,31 +697,27 @@ private:
 
 
 
-	// delete objects of specific layer
+	// Delete all objects that exist in a specific main mode layer
 	void ClearMainLayer(int Layer) {
 		for (auto It = MainCont[Layer].begin(); It != MainCont[Layer].end();) {
-			auto Target = std::find(MainCont[Layer].begin(), MainCont[Layer].end(), *It);
+			delete* It;
+			*It = nullptr;
 
-			delete* Target;
-			*Target = nullptr;
-
-			++It;
+			It = MainCont[Layer].erase(It);
 		}
 	}
 
 
 
 
-	// delete all object
+	// Delete all objects that exist in the main mode container
 	void ClearMainAll() {
 		for (int i = 0; i < N_MAIN_LAYER; ++i) {
 			for (auto It = MainCont[i].begin(); It != MainCont[i].end();) {
-				auto Target = std::find(MainCont[i].begin(), MainCont[i].end(), *It);
+				delete* It;
+				*It = nullptr;
 
-				delete* Target;
-				*Target = nullptr;
-
-				++It;
+				It = MainCont[i].erase(It);
 			}
 		}
 	}
@@ -969,7 +727,7 @@ private:
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
 
-	// get ptr from other popup object
+	// Locate the object pointer through a specific index of a specific sub mode layer
 	SUB_CLS* SubObjPtr(int Layer, int Index) {
 		if (Index >= SubCont[Layer].size())
 			return nullptr;
@@ -980,40 +738,29 @@ private:
 
 
 
-	// delete popup objects of specific popup layer
+	// Delete all objects that exist in a specific sub mode layer
 	void ClearSubLayer(int Layer) {
 		for (auto It = SubCont[Layer].begin(); It != SubCont[Layer].end();) {
-			auto Target = std::find(SubCont[Layer].begin(), SubCont[Layer].end(), *It);
+			delete* It;
+			*It = nullptr;
 
-			delete* Target;
-			*Target = nullptr;
-
-			++It;
+			It = SubCont[Layer].erase(It);
 		}
-
-		if (InEndSubMode)
-			SubCont[Layer].clear();
 	}
 
 
 
 
-	// delete popup object all
+	// Delete all objects that exist in the sub mode container
 	void ClearSubAll() {
 		for (int i = 0; i < N_SUB_LAYER; ++i) {
 			for (auto It = SubCont[i].begin(); It != SubCont[i].end();) {
-				auto Target = std::find(SubCont[i].begin(), SubCont[i].end(), *It);
+				delete* It;
+				*It = nullptr;
 
-				delete* Target;
-				*Target = nullptr;
-
-				++It;
+				It = SubCont[i].erase(It);
 			}
 		}
-
-		if (InEndSubMode)
-			for (int i = 0; i < N_SUB_LAYER; ++i)
-				SubCont[i].clear();
 	}
 
 #endif
