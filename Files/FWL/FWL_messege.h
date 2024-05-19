@@ -19,7 +19,6 @@ enum MainErrorTypes {
 	INC_FUNC_IN_M_SWITCH,
 	LOB_M_IN_ADD,
 	LOB_M_IN_DELETE,
-	UKN_M_IN_DELETE,
 	LOB_M_IN_PTR,
 	LOB_M_IN_FIND,
 	LOB_M_IN_SIZE,
@@ -37,7 +36,6 @@ enum SubErrorTypes {
 	INC_FUNC_IN_S_SWITCH,
 	LOB_S_IN_ADD,
 	LOB_S_IN_DELETE,
-	UKN_S_IN_DELETE,
 	LOB_S_IN_PTR,
 	LOB_S_IN_FIND,
 	LOB_S_IN_SIZE,
@@ -194,12 +192,6 @@ public:
 			cout << "At main mode: '" << CurrentMainModeName << "'" << endl;
 			break;
 
-		case UKN_M_IN_DELETE:
-			cout << "FWL main mode object deletion error::Unknown object" << endl;
-			cout << "Deletion of unknown object has been detected." << endl << endl;
-			cout << "At main mode: '" << CurrentMainModeName << "'" << endl;
-			break;
-
 		case LOB_M_IN_PTR:
 			cout << "FWL main mode ptr error::Layer out of bounds" << endl;
 			cout << "Getting ptr out of layer bounds has been detected." << endl << endl;
@@ -296,12 +288,6 @@ public:
 		case LOB_S_IN_DELETE:
 			cout << "FWL sub mode object deletion error::Layer out of bounds" << endl;
 			cout << "Deletion of object out of layer bounds has been detected." << endl << endl;
-			cout << "At sub mode: '" << CurrentSubModeName << "'" << endl;
-			break;
-
-		case UKN_S_IN_DELETE:
-			cout << "FWL sub mode object deletion error::Unknown object" << endl;
-			cout << "Deletion of unknown object has been detected." << endl << endl;
 			cout << "At sub mode: '" << CurrentSubModeName << "'" << endl;
 			break;
 
