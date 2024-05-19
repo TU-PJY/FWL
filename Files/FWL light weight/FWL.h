@@ -254,15 +254,15 @@ public:
 
 
 	// Delete a single object with a specific tag from a specific main mode layer
-	void DeleteMainObj_Single(int Layer, std::string Tag) {
+	void DeleteMainObj_Layer_Single(int Layer, std::string Tag) {
 		size_t num = MainCont[Layer].size();
 
 		for(int i = 0; i < num; ++i) {
 			auto Target = MainObjPtr(Layer, i);
 
 			if(Target && Target->GetTag() == Tag) {
-				delete Target;
-				Target = nullptr;
+				DeleteMainObj(Target, Layer);
+				break;
 			}
 		}
 	}
@@ -271,15 +271,38 @@ public:
 
 
 	// Delete all objects with a specific tag from a specific main mode layer
-	void DeleteMainObj_All(int Layer, std::string Tag) {
+	void DeleteMainObj_Layer_All(int Layer, std::string Tag) {
 		size_t num = MainCont[Layer].size();
 
 		for(int i = 0; i < num; ++i) {
 			auto Target = MainObjPtr(Layer, i);
 
-			if(Target && Target->GetTag() == Tag) {
-				delete Target;
-				Target = nullptr;
+			if(Target && Target->GetTag() == Tag) 
+				DeleteMainObj(Target, Layer);
+		}
+	}
+
+
+
+
+	// Delete a single object with a specific tag from the main mode container
+	void DeleteMainObj_Entire_Single(std::string Tag) {
+		bool ObjFind{};
+		
+		for(int i = 0; i < N_MAIN_LAYER; ++i) {
+			if(ObjFind)
+				break;
+
+			size_t num = MainCont[i].size();
+
+			for(int j = 0; j < num; ++j) {
+				auto Target = MainObjPtr(i, j);
+
+				if(Target && Target->GetTag() == Tag) {
+					DeleteMainObj(Target, i);
+					ObjFind = true;
+					break;
+				}
 			}
 		}
 	}
@@ -288,17 +311,15 @@ public:
 
 
 	// Delete all objects with a specific tag from the main mode container
-	void DeleteMainObj_Entire(std::string Tag) {
+	void DeleteMainObj_Entire_All(std::string Tag) {
 		for(int i = 0; i < N_MAIN_LAYER; ++i) {
 			size_t num = MainCont[i].size();
 
 			for(int j = 0; j < num; ++j) {
 				auto Target = MainObjPtr(i, j);
 
-				if(Target && Target->GetTag() == Tag) {
-					delete Target;
-					Target = nullptr;
-				}
+				if(Target && Target->GetTag() == Tag)
+					DeleteMainObj(Target, i);
 			}
 		}
 	}
@@ -481,15 +502,15 @@ public:
 
 
 	// Delete a single object with a specific tag from a specific main mode layer
-	void DeleteSubObj_Single(int Layer, std::string Tag) {
+	void DeleteSubObj_Layer_Single(int Layer, std::string Tag) {
 		size_t num = SubCont[Layer].size();
 
 		for(int i = 0; i < num; ++i) {
 			auto Target = SubObjPtr(Layer, i);
 
 			if(Target && Target->GetTag() == Tag) {
-				delete Target;
-				Target = nullptr;
+				DeleteSubObj(Target, Layer);
+				break;
 			}
 		}
 	}
@@ -498,15 +519,38 @@ public:
 
 
 	// Delete all objects with a specific tag from a specific sub mode layer
-	void DeleteSubObj_All(int Layer, std::string Tag) {
+	void DeleteSubObj_Layer_All(int Layer, std::string Tag) {
 		size_t num = SubCont[Layer].size();
 
 		for(int i = 0; i < num; ++i) {
 			auto Target = SubObjPtr(Layer, i);
 
-			if(Target && Target->GetTag() == Tag) {
-				delete Target;
-				Target = nullptr;
+			if(Target && Target->GetTag() == Tag)
+				DeleteSubObj(Target, Layer);
+		}
+	}
+
+
+
+
+	// Delete a single object with a specific tag from the sub mode container
+	void DeleteSubObj_Entire_Single(std::string Tag) {
+		bool ObjFind{};
+
+		for(int i = 0; i < N_SUB_LAYER; ++i) {
+			if(ObjFind)
+				break;
+
+			size_t num = SubCont[i].size();
+
+			for(int j = 0; j < num; ++j) {
+				auto Target = SubObjPtr(i, j);
+
+				if(Target && Target->GetTag() == Tag) {
+					DeleteSubObj(Target, Layer);
+					ObjFind = true;
+					break;
+				}
 			}
 		}
 	}
@@ -515,17 +559,15 @@ public:
 
 
 	// Delete all objects with a specific tag from the sub mode container
-	void DeleteSubObj_Entire(std::string Tag) {
+	void DeleteSubObj_Entire_Single(std::string Tag) {
 		for(int i = 0; i < N_SUB_LAYER; ++i) {
 			size_t num = SubCont[i].size();
 
 			for(int j = 0; j < num; ++j) {
 				auto Target = SubObjPtr(i, j);
 
-				if(Target && Target->GetTag() == Tag) {
-					delete Target;
-					Target = nullptr;
-				}
+				if(Target && Target->GetTag() == Tag)
+					DeleteSubObj(Target, Layer);
 			}
 		}
 	}
