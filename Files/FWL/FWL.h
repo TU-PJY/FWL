@@ -735,7 +735,7 @@ public:
 				auto Target = SubObjPtr(i, j);
 
 				if(Target && Target->GetTag() == Tag) {
-					DeleteSubObj(Target, Layer);
+					DeleteSubObj(Target, i);
 					ObjFind = true;
 					break;
 				}
@@ -747,7 +747,7 @@ public:
 
 
 	// Delete all objects with a specific tag from the sub mode container
-	void DeleteSubObj_Entire_Single(std::string Tag) {
+	void DeleteSubObj_Entire_All(std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 		if (!SubModeInitState)
@@ -762,7 +762,7 @@ public:
 				auto Target = SubObjPtr(i, j);
 
 				if(Target && Target->GetTag() == Tag)
-					DeleteSubObj(Target, Layer);
+					DeleteSubObj(Target, i);
 			}
 		}
 	}
