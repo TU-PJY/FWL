@@ -1,3 +1,7 @@
+// This FWL is a lightweight version with all error check codes removed.
+// Please be careful when using it as there is no error check code.
+// Not recommended unless you are creating a performance oriented program.
+
 #ifndef FWL_H
 #define FWL_H
 #pragma warning(disable: 28020)
@@ -173,8 +177,10 @@ public:
 #endif
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(MainModeList.begin(), MainModeList.end(), MainModeName);
-		if (Target == MainModeList.end())
+		if (Target == MainModeList.end()) {
+			std::cout << "Can not find main mode." << std::endl;
 			exit(1);
+		}
 
 		// Run the mode start function
 		MainModeFunc();
@@ -194,8 +200,10 @@ public:
 	void SwitchMainMode(func MainModeFunc, std::string MainModeName) {
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(MainModeList.begin(), MainModeList.end(), MainModeName);
-		if (Target == MainModeList.end())
+		if (Target == MainModeList.end()) {
+			std::cout << "Can not find main mode." << std::endl;
 			exit(1);
+		}
 
 		// When the mode switch state is activated, all object updates in the main mode and submode are interrupted
 		ModeSwitchState = true;
@@ -239,8 +247,6 @@ public:
 			delete* Target;
 			*Target = nullptr;
 		}
-		else 
-			exit(1);
 	}
 
 
@@ -328,8 +334,10 @@ public:
 	void InitSubMode(func SubModeFunc, std::string SubModeName, bool MainModePauseOption = false) {
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(SubModeList.begin(), SubModeList.end(), SubModeName);
-		if (Target == SubModeList.end())
+		if (Target == SubModeList.end()) {
+			std::cout << "Can not find sub mode." << std::endl;
 			exit(1);
+		}
 
 		PauseState = true;
 
@@ -357,8 +365,10 @@ public:
 	void SwitchSubMode(func SubModeFunc, std::string SubModeName) {
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(SubModeList.begin(), SubModeList.end(), SubModeName);
-		if (Target == SubModeList.end())
+		if (Target == SubModeList.end()) {
+			std::cout << "Can not find sub mode." << std::endl;
 			exit(1);
+		}
 
 		// When the mode switch state is activated, all object updates in the main mode and submode are interrupted
 		ModeSwitchState = true;
@@ -412,9 +422,6 @@ public:
 			delete* Target;
 			*Target = nullptr;
 		}
-
-		else
-			F_Messege.SUB_ERROR(UKN_S_IN_DELETE);
 	}
 
 
