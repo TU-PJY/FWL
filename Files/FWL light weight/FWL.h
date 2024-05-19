@@ -6,6 +6,7 @@
 #define FWL_H
 #pragma warning(disable: 28020)
 
+#include <iostream>
 #include <algorithm>
 #include <array>
 #include <deque>
