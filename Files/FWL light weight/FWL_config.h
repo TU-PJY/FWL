@@ -15,16 +15,25 @@
 
 
 
-class MODELIST {
-public:
-	// add mode list here...
+struct MODELIST {
+	// add main mode list here...
 	std::vector<std::string> MainModeList = 
-	{ "main_mode1", };
+	{ 
+		"main_mode1", 
+	
+	
+	
+	};
 
 
-	// add popup mode list here...
+	// add sub mode list here...
 	std::vector<std::string> SubModeList =
-	{ "sub_mode1", };
+	{ 
+		"sub_mode1", 
+	
+	
+	
+	};
 };
 
 
@@ -34,11 +43,9 @@ public:
 	virtual void Update() {}
 	virtual void CheckCollision() {}
 	virtual void Render() {}
-	virtual void CheckDelete() {}
 	virtual std::string GetTag() const { return {}; }
-	virtual void ActivateDeleteFlag(bool Flag) {}
 
-	// define user function here...
+	// define user function of main mode object class here...
 
 	virtual     ~MAIN_CLS() {}
 };
@@ -49,11 +56,9 @@ public:
 	virtual void Update() {}
 	virtual void CheckCollision() {}
 	virtual void Render() {}
-	virtual void CheckDelete() {}
 	virtual std::string GetTag() const { return {}; }
-	virtual void ActivateDeleteFlag(bool Flag) {}
 
-	// define user function here...
+	// define user function of sub mode object class here...
 
 	virtual     ~SUB_CLS() {}
 };
