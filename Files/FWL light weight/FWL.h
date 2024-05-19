@@ -400,7 +400,6 @@ public:
 
 		// The main mode pause is released, and the remaining submode settings are initialized
 		PauseState = false;
-		InStartSubMode = false;
 		SubModeInitState = false;
 	}
 
