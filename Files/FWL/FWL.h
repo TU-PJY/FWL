@@ -320,8 +320,8 @@ public:
 			auto Target = MainObjPtr(Layer, i);
 
 			if(Target && Target->GetTag() == Tag) {
-				delete* Target;
-				*Target = nullptr;
+				delete Target;
+				Target = nullptr;
 			}
 		}
 	}
@@ -342,8 +342,8 @@ public:
 			auto Target = MainObjPtr(Layer, i);
 
 			if(Target && Target->GetTag() == Tag) {
-				delete* Target;
-				*Target = nullptr;
+				delete Target;
+				Target = nullptr;
 			}
 		}
 	}
@@ -364,8 +364,8 @@ public:
 				auto Target = MainObjPtr(i, j);
 
 				if(Target && Target->GetTag() == Tag) {
-					delete* Target;
-					*Target = nullptr;
+					delete Target;
+					Target = nullptr;
 				}
 			}
 		}
@@ -642,7 +642,7 @@ public:
 
 
 	// Delete a single object with a specific tag from a specific main mode layer
-	void DeleteMSubObj_Single(int Layer, std::string Tag) {
+	void DeleteSubObj_Single(int Layer, std::string Tag) {
 		if (!MainModeInitState)
 			F_Messege.MAIN_ERROR(INV_M_INIT);
 		if (!SubModeInitState)
@@ -657,8 +657,8 @@ public:
 			auto Target = SubObjPtr(Layer, i);
 
 			if(Target && Target->GetTag() == Tag) {
-				delete* Target;
-				*Target = nullptr;
+				delete Target;
+				Target = nullptr;
 			}
 		}
 	}
@@ -682,8 +682,8 @@ public:
 			auto Target = SubObjPtr(Layer, i);
 
 			if(Target && Target->GetTag() == Tag) {
-				delete* Target;
-				*Target = nullptr;
+				delete Target;
+				Target = nullptr;
 			}
 		}
 	}
@@ -706,8 +706,8 @@ public:
 				auto Target = SubObjPtr(i, j);
 
 				if(Target && Target->GetTag() == Tag) {
-					delete* Target;
-					*Target = nullptr;
+					delete Target;
+					Target = nullptr;
 				}
 			}
 		}
