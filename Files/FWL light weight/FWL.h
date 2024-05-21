@@ -6,7 +6,6 @@
 #define FWL_H
 #pragma warning(disable: 28020)
 
-#include <iostream>
 #include <algorithm>
 #include <array>
 #include <deque>
@@ -17,6 +16,13 @@
 
 #ifdef USING_FWL
 #if N_MAIN_LAYER
+
+enum RANGE_OPT {
+	Layer,
+	Entire,
+	Single,
+	All,
+};
 
 class FWL {
 private:
@@ -44,8 +50,7 @@ private:
 	bool					 ModeSwitchState{};
 	bool					 PauseState{};
 
-
-// frame time
+	// frame time
 #ifdef USING_FRAME_TIME
 	clock_t					 StartTime{}, EndTime{};
 	double					 FrameTime{};
@@ -54,6 +59,9 @@ private:
 
 	// callable function type
 	typedef void (*func)(void);
+
+	// FWL error / FWL debug messege processing class
+	FWL_MESSEGE				 F_Messege;
 
 
 public:
@@ -71,8 +79,8 @@ public:
 #endif
 
 	// Multiply the frame time
-	double FT(double movement, double additional_value = 1) { 
-		return movement * FrameTime * FrameTimeMulValue * additional_value; 
+	double FT(double movement, double additional_value = 1) {
+		return movement * FrameTime * FrameTimeMulValue * additional_value;
 	}
 
 #endif
@@ -89,6 +97,8 @@ public:
 	std::string CurrentSubMode() { return CurrentSubModeName; }
 #endif
 #endif
+
+
 
 	// Runs a framework routine
 	void Routine() {
@@ -113,8 +123,8 @@ public:
 					}
 
 					// Verify that the updated object is nullptr, and if it is nullptr, go to the else statement
-					if(Ptr)
-						++It; 
+					if (Ptr)
+						++It;
 
 					// If the object is nullptr, delete the pointer that pointed to it from the container
 					else
@@ -178,10 +188,8 @@ public:
 #endif
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(MainModeList.begin(), MainModeList.end(), MainModeName);
-		if (Target == MainModeList.end()) {
-			std::cout << "Can not find main mode." << std::endl;
-			exit(1);
-		}
+		if (Target == MainModeList.end())
+			std::cerr << "Can not find main mode." << endl;
 
 		// Run the mode start function
 		MainModeFunc();
@@ -201,10 +209,8 @@ public:
 	void SwitchMainMode(func MainModeFunc, std::string MainModeName) {
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(MainModeList.begin(), MainModeList.end(), MainModeName);
-		if (Target == MainModeList.end()) {
-			std::cout << "Can not find main mode." << std::endl;
-			exit(1);
-		}
+		if (Target == MainModeList.end())
+			std::cerr << "Can not find main mode." << endl;
 
 		// When the mode switch state is activated, all object updates in the main mode and submode are interrupted
 		ModeSwitchState = true;
@@ -215,7 +221,6 @@ public:
 			EndSubMode();
 #endif
 #endif
-
 		// Delete all objects in the main mode container
 		ClearMainAll();
 
@@ -234,17 +239,18 @@ public:
 
 
 	// Adds an object to a specific main mode layer
-	void AddMainObj(MAIN_CLS*&& Object, int Layer) {
-		MainCont[Layer].push_back(Object);
+	void AddMainObj(MAIN_CLS*&& Object, int Layer_Num) {
+		MainCont[Layer_Num].push_back(Object);
 	}
 
 
 
 
 	// Delete an object from the main mode container, use within the object class
-	void DeleteMainObj(MAIN_CLS* Object, int Layer) {
-		auto Target = std::find(MainCont[Layer].begin(), MainCont[Layer].end(), Object);
-		if (Target != MainCont[Layer].end()) {
+	void DeleteMainObj(MAIN_CLS* Object, int Layer_Num) {
+		auto Target = std::find(MainCont[Layer_Num].begin(), MainCont[Layer_Num].end(), Object);
+
+		if (Target != MainCont[Layer_Num].end()) {
 			delete* Target;
 			*Target = nullptr;
 		}
@@ -253,166 +259,132 @@ public:
 
 
 
-	// Delete a single object with a specific tag from a specific main mode layer
-	void DeleteMainObj_Layer_Single(int Layer, std::string Tag) {
-		size_t num = MainCont[Layer].size();
+	// Delete objects with a specific tag from a main mode
+	void DeleteMainObj(int Where, int Range, std::string Tag, int Layer_Num = 0) {
+		switch (Where) {
+		case Layer:
+			switch (Range) {
+				case Single: {
+					auto Target = std::find_if(MainCont[Layer_Num].begin(), MainCont[Layer_Num].end(),
+						[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
 
-		for(int i = 0; i < num; ++i) {
-			auto Target = MainObjPtr(Layer, i);
-
-			if(Target && Target->GetTag() == Tag) {
-				DeleteMainObj(Target, Layer);
-				break;
-			}
-		}
-	}
-
-
-
-
-	// Delete all objects with a specific tag from a specific main mode layer
-	void DeleteMainObj_Layer_All(int Layer, std::string Tag) {
-		size_t num = MainCont[Layer].size();
-
-		for(int i = 0; i < num; ++i) {
-			auto Target = MainObjPtr(Layer, i);
-
-			if(Target && Target->GetTag() == Tag) 
-				DeleteMainObj(Target, Layer);
-		}
-	}
-
-
-
-
-	// Delete a single object with a specific tag from the main mode container
-	void DeleteMainObj_Entire_Single(std::string Tag) {
-		bool ObjFind{};
-		
-		for(int i = 0; i < N_MAIN_LAYER; ++i) {
-			if(ObjFind)
-				break;
-
-			size_t num = MainCont[i].size();
-
-			for(int j = 0; j < num; ++j) {
-				auto Target = MainObjPtr(i, j);
-
-				if(Target && Target->GetTag() == Tag) {
-					DeleteMainObj(Target, i);
-					ObjFind = true;
-					break;
+					if (Target != MainCont[Layer_Num].end()) {
+						delete* Target;
+						*Target = nullptr;
+					}
 				}
-			}
-		}
-	}
-
-
-
-
-	// Delete all objects with a specific tag from the main mode container
-	void DeleteMainObj_Entire_All(std::string Tag) {
-		for(int i = 0; i < N_MAIN_LAYER; ++i) {
-			size_t num = MainCont[i].size();
-
-			for(int j = 0; j < num; ++j) {
-				auto Target = MainObjPtr(i, j);
-
-				if(Target && Target->GetTag() == Tag)
-					DeleteMainObj(Target, i);
-			}
-		}
-	}
-
-
-
-
-	// Returns the number of objects in a specific main mode layer
-	size_t MainLayerSize(int Layer) {
-		return MainCont[Layer].size();
-	}
-
-
-
-
-	// Locate the pointer to a single object in the specific main mode layer
-	MAIN_CLS* FindMainObj_Layer_Single(int Layer, std::string Tag) {
-		MAIN_CLS* Obj{};
-		bool ObjFind{};
-
-		size_t num = MainCont[Layer].size();
-
-		for (int i = 0; i < num; ++i) {
-			auto Ptr = MainObjPtr(Layer, i);
-
-			if (Ptr && Ptr->GetTag() == Tag) {
-				Obj = Ptr;
-				ObjFind = true;
-				break;
-			}
-		}
-
-		if (ObjFind)
-			return Obj;
-		else
-			return nullptr;
-	}
-
-
-
-
-	// Locate the pointer to a single object in the main mode container
-	MAIN_CLS* FindMainObj_Entire_Single(std::string Tag) {
-		MAIN_CLS* Obj{};
-		bool ObjFind{};
-
-		for (int i = 0; i < N_MAIN_LAYER; ++i) {
-			if (ObjFind)
 				break;
 
-			size_t num = MainCont[i].size();
+				case All: {
+					auto Target = std::find_if(MainCont[Layer_Num].begin(), MainCont[Layer_Num].end(),
+						[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
 
-			for (int j = 0; j < num; ++j) {
-				auto Ptr = MainObjPtr(i, j);
-				if (Ptr && Ptr->GetTag() == Tag) {
-					Obj = Ptr;
-					ObjFind = true;
-					break;
+					while (Target != MainCont[Layer_Num].end()) {
+						delete* Target;
+						*Target = nullptr;
+
+						Target = std::find_if(Target + 1, MainCont[Layer_Num].end(),
+							[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
+					}
 				}
+				break;
 			}
-		}
+		break;
 
-		if (ObjFind)
-			return Obj;
-		else
-			return nullptr;
+
+		case Entire:
+			switch (Range) {
+				case Single:
+					for (int i = 0; i < N_MAIN_LAYER; ++i) {
+						auto Target = std::find_if(MainCont[i].begin(), MainCont[i].end(),
+							[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+						if (Target != MainCont[i].end()) {
+							delete* Target;
+							*Target = nullptr;
+							break;
+						}
+					}
+				break;
+
+				case All:
+					for (int i = 0; i < N_MAIN_LAYER; ++i) {
+						auto Target = std::find_if(MainCont[i].begin(), MainCont[i].end(),
+							[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+						while (Target != MainCont[i].end()) {
+							delete* Target;
+							*Target = nullptr;
+
+							Target = std::find_if(Target + 1, MainCont[i].end(),
+								[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
+						}
+					}
+				break;
+			}
+		break;
+		}
+	}
+
+
+
+
+	// Locate the pointer to a single object in the main mode
+	MAIN_CLS* FindMainObj(int Where, std::string Tag, int Layer_Num = 0) {
+		switch (Where) {
+			case Layer: {
+				auto Target = std::find_if(MainCont[Layer_Num].begin(), MainCont[Layer_Num].end(),
+					[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+				if (Target != MainCont[Layer_Num].end())
+					return *Target;
+			}
+			break;
+
+			case Entire:
+				for (int i = 0; i < N_MAIN_LAYER; ++i) {
+					auto Target = std::find_if(MainCont[i].begin(), MainCont[i].end(),
+						[&Tag](const MAIN_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+					if (Target != MainCont[i].end())
+						return *Target;
+				}
+			break;
+		}
 	}
 
 
 
 
 	// Locate multiple objects in the specific main mode layer, use with 'for()'
-	MAIN_CLS* FindMainObj_Layer_Index(int Layer, int Index, std::string Tag) {
-		auto Ptr = MainObjPtr(Layer, Index);
+	MAIN_CLS* FindMainObj(int Layer_Num, int Index_Num, std::string Tag) {
+		auto Target = MainObjPtr(Layer_Num, Index_Num);
 
-		if (Ptr && Ptr->GetTag() == Tag)
-			return Ptr;
+		if (Target && Target->GetTag() == Tag)
+			return Target;
 		else
 			return nullptr;
 	}
 
 
+
+
+	// Returns the number of objects in a specific main mode layer
+	size_t MainLayerSize(int Layer_Num) {
+		return MainCont[Layer_Num].size();
+	}
+
+
+
+
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
-
 	// Initializes the submode
 	void InitSubMode(func SubModeFunc, std::string SubModeName, bool MainModePauseOption = false) {
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(SubModeList.begin(), SubModeList.end(), SubModeName);
-		if (Target == SubModeList.end()) {
-			std::cout << "Can not find sub mode." << std::endl;
-			exit(1);
-		}
+		if (Target == SubModeList.end())
+			std::cerr << "Can not find sub mode." << std::end;
 
 		PauseState = true;
 
@@ -440,10 +412,8 @@ public:
 	void SwitchSubMode(func SubModeFunc, std::string SubModeName) {
 		// If the mode name passed to the parameter cannot be found in the mode list you created in FWL_config, exit the framework
 		auto Target = std::find(SubModeList.begin(), SubModeList.end(), SubModeName);
-		if (Target == SubModeList.end()) {
-			std::cout << "Can not find sub mode." << std::endl;
-			exit(1);
-		}
+		if (Target == SubModeList.end())
+			std::cerr << "Can not find sub mode." << std::end;
 
 		// When the mode switch state is activated, all object updates in the main mode and submode are interrupted
 		ModeSwitchState = true;
@@ -482,17 +452,18 @@ public:
 
 
 	// Adds an object to a specific sub mode layer
-	void AddSubObj(SUB_CLS*&& Object, int Layer) {
-		SubCont[Layer].push_back(Object);
+	void AddSubObj(SUB_CLS*&& Object, int Layer_Num) {
+		SubCont[Layer_Num].push_back(Object);
 	}
 
 
 
 
 	// Delete an object from the sub mode container, use within the object class
-	void DeleteSubObj(SUB_CLS* Object, int Layer) {
-		auto Target = std::find(SubCont[Layer].begin(), SubCont[Layer].end(), Object);
-		if (Target != SubCont[Layer].end()) {
+	void DeleteSubObj(SUB_CLS* Object, int Layer_Num) {
+		auto Target = std::find(SubCont[Layer_Num].begin(), SubCont[Layer_Num].end(), Object);
+
+		if (Target != SubCont[Layer_Num].end()) {
 			delete* Target;
 			*Target = nullptr;
 		}
@@ -501,177 +472,145 @@ public:
 
 
 
-	// Delete a single object with a specific tag from a specific main mode layer
-	void DeleteSubObj_Layer_Single(int Layer, std::string Tag) {
-		size_t num = SubCont[Layer].size();
+	// Delete objects with a specific tag from a sub mode
+	void DeleteSubObj(int Where, int Range, std::string Tag, int Layer_Num = 0) {
+		switch (Where) {
+		case Layer:
+			switch (Range) {
+				case Single: {
+					auto Target = std::find_if(SubCont[Layer_Num].begin(), SubCont[Layer_Num].end(),
+						[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
 
-		for(int i = 0; i < num; ++i) {
-			auto Target = SubObjPtr(Layer, i);
-
-			if(Target && Target->GetTag() == Tag) {
-				DeleteSubObj(Target, Layer);
-				break;
-			}
-		}
-	}
-
-
-
-
-	// Delete all objects with a specific tag from a specific sub mode layer
-	void DeleteSubObj_Layer_All(int Layer, std::string Tag) {
-		size_t num = SubCont[Layer].size();
-
-		for(int i = 0; i < num; ++i) {
-			auto Target = SubObjPtr(Layer, i);
-
-			if(Target && Target->GetTag() == Tag)
-				DeleteSubObj(Target, Layer);
-		}
-	}
-
-
-
-
-	// Delete a single object with a specific tag from the sub mode container
-	void DeleteSubObj_Entire_Single(std::string Tag) {
-		bool ObjFind{};
-
-		for(int i = 0; i < N_SUB_LAYER; ++i) {
-			if(ObjFind)
-				break;
-
-			size_t num = SubCont[i].size();
-
-			for(int j = 0; j < num; ++j) {
-				auto Target = SubObjPtr(i, j);
-
-				if(Target && Target->GetTag() == Tag) {
-					DeleteSubObj(Target, i);
-					ObjFind = true;
-					break;
+					if (Target != SubCont[Layer_Num].end()) {
+						delete* Target;
+						*Target = nullptr;
+					}
 				}
+				break;
+
+				case All: {
+					auto Target = std::find_if(SubCont[Layer_Num].begin(), SubCont[Layer_Num].end(),
+						[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+					while (Target != SubCont[Layer_Num].end()) {
+						delete* Target;
+						*Target = nullptr;
+
+						Target = std::find_if(Target + 1, SubCont[Layer_Num].end(),
+							[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
+					}
+				}
+				break;
 			}
+		break;
+
+
+		case Entire:
+			switch (Range) {
+				case Single:
+					for (int i = 0; i < N_SUB_LAYER; ++i) {
+						auto Target = std::find_if(SubCont[i].begin(), SubCont[i].end(),
+							[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+						if (Target != SubCont[i].end()) {
+							delete* Target;
+							*Target = nullptr;
+							break;
+						}
+					}
+				break;
+
+				case All:
+					for (int i = 0; i < N_SUB_LAYER; ++i) {
+						auto Target = std::find_if(SubCont[i].begin(), SubCont[i].end(),
+							[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+						while (Target != SubCont[i].end()) {
+							delete* Target;
+							*Target = nullptr;
+
+							Target = std::find_if(Target + 1, SubCont[i].end(),
+								[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
+						}
+					}
+				break;
+			}
+		break;
 		}
 	}
 
 
 
 
-	// Delete all objects with a specific tag from the sub mode container
-	void DeleteSubObj_Entire_All(std::string Tag) {
-		for(int i = 0; i < N_SUB_LAYER; ++i) {
-			size_t num = SubCont[i].size();
+	// Locate the pointer to a single object in the sub mode
+	SUB_CLS* FindSubObj(int Where, std::string Tag, int Layer_Num = 0) {
+		switch (Where) {
+			case Layer: {
+				auto Target = std::find_if(SubCont[Layer_Num].begin(), SubCont[Layer_Num].end(),
+					[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
 
-			for(int j = 0; j < num; ++j) {
-				auto Target = SubObjPtr(i, j);
-
-				if(Target && Target->GetTag() == Tag)
-					DeleteSubObj(Target, i);
+				if (Target != SubCont[Layer_Num].end())
+					return *Target;
 			}
+			break;
+
+			case Entire:
+				for (int i = 0; i < N_SUB_LAYER; ++i) {
+					auto Target = std::find_if(SubCont[i].begin(), SubCont[i].end(),
+						[&Tag](const SUB_CLS*& Obj) { return Obj->GetTag() == Tag; });
+
+					if (Target != SubCont[i].end())
+						return *Target;
+				}
+			break;
 		}
+	}
+
+
+
+
+	// Locate multiple objects in the specific main mode layer, use with 'for()'
+	SUB_CLS* FindSubObj(int Layer_Num, int Index_Num, std::string Tag) {
+		auto Target = SubObjPtr(Layer_Num, Index_Num);
+
+		if (Target && Target->GetTag() == Tag)
+			return Target;
+		else
+			return nullptr;
 	}
 
 
 
 
 	// Returns the number of objects in a specific sub mode layer
-	size_t SubLayerSize(int Layer) {
-		return SubCont[Layer].size();
+	size_t SubLayerSize(int Layer_Num) {
+		return SubCont[Layer_Num].size();
 	}
-
-
-
-
-	// Locate the pointer to a single object in the specific sub mode layer
-	SUB_CLS* FindSubObj_Layer_Single(int Layer, std::string Tag) {
-		SUB_CLS* Obj{};
-		bool ObjFind{};
-
-		size_t num = SubCont[Layer].size();
-
-		for (int i = 0; i < num; ++i) {
-			auto Ptr = SubObjPtr(Layer, i);
-
-			if (Ptr && Ptr->GetTag() == Tag) {
-				Obj = Ptr;
-				ObjFind = true;
-				break;
-			}
-		}
-
-		if (ObjFind)
-			return Obj;
-		else
-			return nullptr;
-	}
-
-
-
-
-	// Locate the pointer to a single object in the sub mode container
-	SUB_CLS* FindSubObj_Entire_Single(std::string Tag) {
-		SUB_CLS* Obj{};
-		bool ObjFind{};
-
-		for (int i = 0; i < N_SUB_LAYER; ++i) {
-			if (ObjFind)
-				break;
-
-			size_t num = SubCont[i].size();
-
-			for (int j = 0; j < num; ++j) {
-				auto Ptr = SubObjPtr(i, j);
-				if (Ptr && Ptr->GetTag() == Tag) {
-					Obj = Ptr;
-					ObjFind = true;
-					break;
-				}
-			}
-		}
-
-		if (ObjFind)
-			return Obj;
-		else
-			return nullptr;
-	}
-
-
-
-
-	// Locate multiple objects in the specific sub mode layer, use with 'for()'
-	SUB_CLS* FindSubObj_Layer_Index(int Layer, int Index, std::string Tag) {
-		auto Ptr = SubObjPtr(Layer, Index);
-
-		if (Ptr && Ptr->GetTag() == Tag)
-			return Ptr;
-		else
-			return nullptr;
-	}
-
 #endif
 #endif
+
+
 
 
 private:
 	// Locate the object pointer through a specific index of a specific main mode layer
-	MAIN_CLS* MainObjPtr(int Layer, int Index) {
-		if (Index >= MainCont[Layer].size())
+	MAIN_CLS* MainObjPtr(int Layer_Num, int Index_Num) {
+		if (Index_Num >= MainCont[Layer_Num].size())
 			return nullptr;
 		else
-			return MainCont[Layer][Index];
+			return MainCont[Layer_Num][Index_Num];
 	}
 
 
 
 
 	// Delete all objects that exist in a specific main mode layer
-	void ClearMainLayer(int Layer) {
-		for (auto It = MainCont[Layer].begin(); It != MainCont[Layer].end();) {
+	void ClearMainLayer(int Layer_Num) {
+		for (auto It = MainCont[Layer_Num].begin(); It != MainCont[Layer_Num].end();) {
 			delete* It;
 			*It = nullptr;
 
-			It = MainCont[Layer].erase(It);
+			It = MainCont[Layer_Num].erase(It);
 		}
 	}
 
@@ -692,27 +631,27 @@ private:
 
 
 
+
 #ifdef USING_SUB_MODE
 #if N_SUB_LAYER
-
 	// Locate the object pointer through a specific index of a specific sub mode layer
-	SUB_CLS* SubObjPtr(int Layer, int Index) {
-		if (Index >= SubCont[Layer].size())
+	SUB_CLS* SubObjPtr(int Layer_Num, int Imdex_Num) {
+		if (Imdex_Num >= SubCont[Layer_Num].size())
 			return nullptr;
 		else
-			return SubCont[Layer][Index];
+			return SubCont[Layer_Num][Imdex_Num];
 	}
 
 
 
 
 	// Delete all objects that exist in a specific sub mode layer
-	void ClearSubLayer(int Layer) {
-		for (auto It = SubCont[Layer].begin(); It != SubCont[Layer].end();) {
+	void ClearSubLayer(int Layer_Num) {
+		for (auto It = SubCont[Layer_Num].begin(); It != SubCont[Layer_Num].end();) {
 			delete* It;
 			*It = nullptr;
 
-			It = SubCont[Layer].erase(It);
+			It = SubCont[Layer_Num].erase(It);
 		}
 	}
 
@@ -730,7 +669,6 @@ private:
 			}
 		}
 	}
-
 #endif
 #endif
 
