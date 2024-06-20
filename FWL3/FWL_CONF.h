@@ -2,6 +2,7 @@
 #pragma once
 #include <string>
 
+#define USE_FRAME_TIME_INSIDE
 constexpr bool DebugMessage = false;
 
 enum class Layer

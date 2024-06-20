@@ -33,6 +33,10 @@ private:
 
 	Function						  Buffer{};
 
+#ifdef USE_FRAME_TIME_INSIDE
+	clock_t StartTime{}, EndTime{};
+#endif
+
 public:
 	FWL() {
 		if (DebugMessage) {
@@ -41,12 +45,14 @@ public:
 		}
 	}
 
-	std::string Mode() {
-		return RunningMode;
-	}
-
+#ifndef USE_FRAME_TIME_INSIDE
 	void SetFrameTime(float ElapsedTime) {
 		FrameTime = ElapsedTime;
+	}
+#endif
+
+	std::string Mode() {
+		return RunningMode;
 	}
 
 	void SwitchToSubRunningState() {
@@ -72,18 +78,18 @@ public:
 	void Routine() {
 		using namespace std;
 
+#ifdef USE_FRAME_TIME_INSIDE
+		StartTime = clock();
+#endif
+
 		if (!ModeSwitchState && RunningState) {
 			for (int i = 0; i < Num; ++i) {
 				if (Container[i].empty())
 					continue;
 
 				for (auto It = begin(Container[i]); It != end(Container[i]);) {
-					if ((*It)->DeleteFlag) {
-						delete* It;
-						*It = nullptr;
-						It = Container[i].erase(It);
+					if (CheckDeleteFlag(It, i))
 						continue;
-					}
 
 					if (!SubRunningState)
 						(*It)->Update(FrameTime);
@@ -92,17 +98,13 @@ public:
 						if(!(*It)->StopAtPauseFlag)
 							(*It)->Update(FrameTime);
 					}
+
 					(*It)->Render();
 
+					if (CheckDeleteFlag(It, i))
+						continue;
 
-					if ((*It)->DeleteFlag) {
-						delete* It;
-						*It = nullptr;
-						It = Container[i].erase(It);
-					}
-
-					else
-						++It;
+					++It;
 				}
 
 				if (ReserveState) {
@@ -116,6 +118,11 @@ public:
 			ChangeMode();
 			ReserveState = false;
 		}
+
+#ifdef USE_FRAME_TIME_INSIDE
+		EndTime = clock();
+		FrameTime = float(EndTime - StartTime) / 1000;
+#endif
 	}
 
 	void SwitchMode(Function ModeFunction, bool PauseOption=false) {
@@ -262,6 +269,16 @@ public:
 
 
 private:
+	bool CheckDeleteFlag(std::deque<OBJ*>::iterator& It, int Layer) {
+		if ((*It)->DeleteFlag) {
+			delete* It;
+			*It = nullptr;
+			It = Container[Layer].erase(It);
+			return true;
+		}
+		return false;
+	}
+
 	void ChangeMode() {
 		ClearAll();
 
