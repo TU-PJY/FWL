@@ -276,6 +276,8 @@ void FWM::ChangeMode() {
 }
 
 void FWM::RemovePartialObject() {
+	using namespace std;
+	
 	for (int i = 0; i < Num; ++i) {
 		for (auto It = begin(Container[i]); It != end(Container[i]);) {
 			if ((*It)->PartialExecuteObject) {
