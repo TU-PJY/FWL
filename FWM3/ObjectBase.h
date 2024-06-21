@@ -5,10 +5,11 @@
 class OBJ_BASE {
 public:
 	bool DeleteFlag{};
-	bool StopAtPauseFlag{ true };
+	bool PartialExecuteObject{};
 	std::string ObjectTag{};
 
 	virtual void Update(float FT) {}
+	virtual void InputControl() {}
 	virtual void Render() {}
 
 	virtual ~OBJ_BASE() {}

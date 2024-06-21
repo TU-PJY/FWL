@@ -20,14 +20,6 @@ std::string FWM::Mode() {
 	return RunningMode;
 }
 
-void FWM::SwitchToSubRunningState() {
-	SubRunningState = true;
-}
-
-void FWM::SwitchToDefaultRunningState() {
-	SubRunningState = false;
-}
-
 void FWM::Init(Function ModeFunction) {
 	if (RunningState)
 		return;
@@ -43,7 +35,7 @@ void FWM::Init(Function ModeFunction) {
 void FWM::Routine() {
 	using namespace std;
 
-	if (!ModeSwitchState && RunningState) {
+	if (!PartialDeleteState && !ModeSwitchState && RunningState) {
 		for (int i = 0; i < Num; ++i) {
 			if (Container[i].empty())
 				continue;
@@ -52,12 +44,16 @@ void FWM::Routine() {
 				if (CheckDeleteFlag(It, i))
 					continue;
 
-				if (!SubRunningState)
+				if (!PartialExecutionState) {
+					(*It)->InputControl();
 					(*It)->Update(FrameTime);
+				}
 
-				else if (SubRunningState) {
-					if (!(*It)->StopAtPauseFlag)
+				else if (PartialExecutionState) {
+					if ((*It)->PartialExecuteObject) {
+						(*It)->InputControl();
 						(*It)->Update(FrameTime);
+					}
 				}
 
 				(*It)->Render();
@@ -68,11 +64,21 @@ void FWM::Routine() {
 				++It;
 			}
 
+			if (PartialDeleteReserveState) {
+				PartialDeleteState = true;
+				break;
+			}
+
 			if (ReserveState) {
 				ModeSwitchState = true;
 				break;
 			}
 		}
+	}
+
+	if (PartialDeleteReserveState) {
+		RemovePartialObject();
+		PartialDeleteReserveState = false;
 	}
 
 	if (ReserveState) {
@@ -81,32 +87,49 @@ void FWM::Routine() {
 	}
 }
 
-void FWM::SwitchMode(Function ModeFunction, bool PauseOption) {
+
+void FWM::SwitchMode(Function ModeFunction) {
 	if (!RunningState)
 		return;
 
 	Buffer = ModeFunction;
-	ReserveState = true;
-
-	if (PauseOption)
-		SubRunningState = true;
-	else
-		SubRunningState = false;
-
-	FLog.IsPause = SubRunningState;
 	FLog.PrevMode = RunningMode;
+
+	ReserveState = true;
 }
 
-void FWM::AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool AddAsSubObject) {
+void FWM::StartPartialExecution() {
+	if (PartialExecutionState)
+		return;
+
+	PartialExecutionState = true;
+	FLog.IsPartialExecutionState = PartialExecutionState;
+	FLog.Log(LogType::EVENT_PARTIAL_EXECUTION);
+}
+
+void FWM::StopPartialExecution() {
+	if (!PartialExecutionState)
+		return;
+
+	PartialExecutionState = false;
+	FLog.IsPartialExecutionState = PartialExecutionState;
+	FLog.Log(LogType::EVENT_PARTIAL_EXECUTION);
+}
+
+void FWM::ClearPartialObject() {
+	PartialDeleteReserveState = true;
+}
+
+void FWM::AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool PartialExecutionOpt) {
 	Container[static_cast<int>(AddLayer)].push_back(Object);
 	Object->ObjectTag = Tag;
 
 	FLog.ObjectTag = Tag;
 	FLog.Log(LogType::ADD_OBJECT);
 
-	if (AddAsSubObject) {
-		Object->StopAtPauseFlag = false;
-		FLog.Log(LogType::SET_AS_SUB_OBJECT);
+	if (PartialExecutionOpt) {
+		Object->PartialExecuteObject = true;
+		FLog.Log(LogType::SET_NO_STOP_AT_PARTIAL_EXECUTION);
 	}
 }
 
@@ -224,6 +247,9 @@ size_t FWM::Size(Layer TargetLayer) {
 }
 
 
+
+//////// private ///////////////
+
 bool FWM::CheckDeleteFlag(std::deque<OBJ_BASE*>::iterator& It, int Layer) {
 	if ((*It)->DeleteFlag) {
 		delete* It;
@@ -247,6 +273,28 @@ void FWM::ChangeMode() {
 	FLog.Log(LogType::MODE_SWITCH);
 
 	ModeSwitchState = false;
+}
+
+void FWM::RemovePartialObject() {
+	for (int i = 0; i < Num; ++i) {
+		for (auto It = begin(Container[i]); It != end(Container[i]);) {
+			if ((*It)->PartialExecuteObject) {
+				delete* It;
+				*It = nullptr;
+				It = Container[i].erase(It);
+				continue;
+			}
+
+			++It;
+		}
+	}
+
+	PartialExecutionState = false;
+	PartialDeleteState = false;
+
+	FLog.IsPartialExecutionState = PartialExecutionState;
+	FLog.Log(LogType::EVENT_PARTIAL_EXECUTION);
+	FLog.Log(LogType::DELETE_PARTIAL_EXECUTION_OBJECT);
 }
 
 void FWM::ClearAll() {

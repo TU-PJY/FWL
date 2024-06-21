@@ -26,7 +26,10 @@ private:
 	bool							  RunningState{};
 	bool							  ReserveState{};
 	bool							  ModeSwitchState{};
-	bool							  SubRunningState{};
+
+	bool							  PartialExecutionState{};
+	bool                              PartialDeleteReserveState{};
+	bool							  PartialDeleteState{};
 
 	float							  FrameTime{};
 
@@ -34,14 +37,15 @@ private:
 
 public:
 	FWM();
-	void SetFrameTime(float ElapsedTime);
 	std::string Mode();
-	void SwitchToSubRunningState();
-	void SwitchToDefaultRunningState();
 	void Init(Function ModeFunction);
+	void SetFrameTime(float ElapsedTime);
 	void Routine();
-	void SwitchMode(Function ModeFunction, bool PauseOption = false);
-	void AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool AddAsSubObject = false);
+	void SwitchMode(Function ModeFunction);
+	void StartPartialExecution();
+	void StopPartialExecution();
+	void ClearPartialObject();
+	void AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool PartialExecutionOpt = false);
 	void DeleteSelf(OBJ_BASE* Object);
 	void DeleteObject(std::string Tag, DeleteRange deleteRange, SearchRange searchRange, Layer LayerToSearch);
 	OBJ_BASE* Find(std::string Tag, SearchRange searchRange, Layer LayerToSearch = Layer::L1);
@@ -50,6 +54,7 @@ public:
 
 private:
 	bool CheckDeleteFlag(std::deque<OBJ_BASE*>::iterator& It, int Layer);
+	void RemovePartialObject();
 	void ChangeMode();
 	void ClearAll();
 };
