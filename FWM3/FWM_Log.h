@@ -1,6 +1,6 @@
-// FWL Version 3
+// FWM Version 3
 #pragma once
-#include "FWL_CONF.h"
+#include "FWM_CONF.h"
 #include <iostream>
 
 enum class LogType {
@@ -12,7 +12,7 @@ enum class LogType {
 	ERROR_SAME_MODE
 };
 
-class FWL_Log {
+class FWM_Log {
 public:
 	std::string PrevMode{};
 	std::string CurrentMode{};
