@@ -73,7 +73,7 @@ void FWM::Routine() {
 	}
 }
 
-void FWM::Init(Function ModeFunction, Function Controller) {
+void FWM::Init(Function ModeFunction, ControllerFunction Controller) {
 	if (RunningState)
 		return;
 
@@ -90,7 +90,7 @@ void FWM::Init(Function ModeFunction, Function Controller) {
 	RunningState = true;
 }
 
-void FWM::SwitchMode(Function ModeFunction, Function Controller) {
+void FWM::SwitchMode(Function ModeFunction, ControllerFunction Controller) {
 	if (!RunningState)
 		return;
 
@@ -103,7 +103,7 @@ void FWM::SwitchMode(Function ModeFunction, Function Controller) {
 	ModeSwitchReserveDescriptor = true;
 }
 
-void FWM::StartFloatingMode(Function ModeFunction, Function Controller, bool FloatingOnlyOption) {
+void FWM::StartFloatingMode(Function ModeFunction, ControllerFunction Controller, bool FloatingOnlyOption) {
 	if (!RunningState || FloatingModeRunningState)
 		return;
 

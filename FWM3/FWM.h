@@ -8,6 +8,7 @@
 #include <algorithm>
 
 typedef std::string(*Function)(void);
+typedef void(*ControllerFunction)(void);
 constexpr int Num = static_cast<int>(Layer::END);
 
 enum class DeleteRange
@@ -37,17 +38,17 @@ private:
 	float							  FrameTime{};
 
 	Function						  ModeFunctionBuffer{};
-	Function						  ControllerBuffer{};
-	Function						  ControllerBackUpBuffer{};
+	ControllerFunction			      ControllerBuffer{};
+	ControllerFunction				  ControllerBackUpBuffer{};
 
 public:
 	FWM();
 	std::string Mode();
-	void Init(Function ModeFunction, Function Controller=nullptr);
+	void Init(Function ModeFunction, ControllerFunction Controller=nullptr);
 	void SetFrameTime(float ElapsedTime);
 	void Routine();
-	void SwitchMode(Function ModeFunction, Function Controller=nullptr);
-	void StartFloatingMode(Function ModeFunction, Function Controller=nullptr, bool FloatingOnlyOption=false);
+	void SwitchMode(Function ModeFunction, ControllerFunction Controller=nullptr);
+	void StartFloatingMode(Function ModeFunction, ControllerFunction Controller=nullptr, bool FloatingOnlyOption=false);
 	void EndFloatingMode();
 	void ResetControlState(OBJ_BASE* Object);
 	void AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool SetFloatingObject=false);
