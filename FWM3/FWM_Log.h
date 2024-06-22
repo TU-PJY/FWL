@@ -7,10 +7,10 @@ enum class LogType {
 	FWL_INIT,
 	MODE_SWITCH,
 	ADD_OBJECT,
-	SET_NO_STOP_AT_PARTIAL_EXECUTION,
+	SET_FLOATING_OBJECT,
 	DELETE_OBJECT,
-	EVENT_PARTIAL_EXECUTION,
-	DELETE_PARTIAL_EXECUTION_OBJECT,
+	START_FLOATING_MODE,
+	END_FLOATING_MODE,
 	ERROR_SAME_MODE
 };
 
@@ -19,23 +19,37 @@ public:
 	std::string PrevMode{};
 	std::string CurrentMode{};
 	std::string ObjectTag{};
-	bool IsPartialExecutionState{};
+	bool IsOnlyFloating{};
 
 	void Log(LogType Type) {
 		using namespace std;
 		if (DebugMessage) {
-			cout << "======== FWL Message ========\n";
+			cout << "======== FWM Message ========\n";
 			cout << "Message Type: ";
 
 			switch (Type) {
 			case LogType::FWL_INIT:
-				cout << "FWL Init\n";
-				cout << "FWL Staterted running with Mode [ " << CurrentMode << " ].\n";
+				cout << "FWM Init\n";
+				cout << "FWM Staterted running with Mode [ " << CurrentMode << " ].\n";
 				break;
 
 			case LogType::MODE_SWITCH:
 				cout << "Mode Switch\n";
 				cout << "Mode Switched from [ " << PrevMode << " ] to [ " << CurrentMode << " ].\n";
+				if (IsOnlyFloating)
+					cout << "Floating only state is activated.\n";
+				else
+					cout << "Floating only state is not activated.\n";
+				break;
+
+			case LogType::START_FLOATING_MODE:
+				cout << "Floating Mode\n";
+				cout << "Floating mode started.\n";
+				break;
+
+			case LogType::END_FLOATING_MODE:
+				cout << "Floating Mode\n";
+				cout << "FLoating Mode ended.\n";
 				break;
 
 			case LogType::ADD_OBJECT:
@@ -43,27 +57,14 @@ public:
 				cout << "Object [ " << ObjectTag << " ] added.\n";
 				break;
 
-			case LogType::SET_NO_STOP_AT_PARTIAL_EXECUTION:
-				cout << "Set Object No Stop At Partial Execution\n";
-				cout << "Object [ " << ObjectTag << " ] set no stop at partial execution.\n";
+			case LogType::SET_FLOATING_OBJECT:
+				cout << "Set Object Floating Object\n";
+				cout << "Object [ " << ObjectTag << " ] set as floating object.\n";
 				break;
 
 			case LogType::DELETE_OBJECT:
 				cout << "Object Delete\n";
 				cout << "Object [ " << ObjectTag << " ] deleted.\n";
-				break;
-
-			case LogType::EVENT_PARTIAL_EXECUTION:
-				cout << "Partial Execution State Change\n";
-				if (IsPartialExecutionState)
-					cout << "Started partial execution.\n";
-				else
-					cout << "Stopped partial execution.\n";
-				break;
-
-			case LogType::DELETE_PARTIAL_EXECUTION_OBJECT:
-				cout << "Partial Execution Object Delete\n";
-				cout << "All of the partial execution objects deleted.\n";
 				break;
 			}
 
@@ -74,7 +75,7 @@ public:
 	void ErrorLog(LogType Type) {
 		using namespace std;
 
-		cout << "======== FWL Error ========\n";
+		cout << "======== FWM Error ========\n";
 		cout << "Error Type: ";
 
 		switch (Type) {

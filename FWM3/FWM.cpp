@@ -20,22 +20,10 @@ std::string FWM::Mode() {
 	return RunningMode;
 }
 
-void FWM::Init(Function ModeFunction) {
-	if (RunningState)
-		return;
-
-	RunningMode = ModeFunction();
-
-	FLog.CurrentMode = RunningMode;
-	FLog.Log(LogType::FWL_INIT);
-
-	RunningState = true;
-}
-
 void FWM::Routine() {
 	using namespace std;
 
-	if (!PartialDeleteState && !ModeSwitchState && RunningState) {
+	if (!ModeSwitchState && RunningState) {
 		for (int i = 0; i < Num; ++i) {
 			if (Container[i].empty())
 				continue;
@@ -44,16 +32,24 @@ void FWM::Routine() {
 				if (CheckDeleteFlag(It, i))
 					continue;
 
-				if (!PartialExecutionState) {
-					(*It)->InputControl();
-					(*It)->Update(FrameTime);
-				}
+				if (FloatingModeRunningState) {
+					if (FloatingOnlyState) {
+						if ((*It)->FloatingSpecifiedDescriptor) {
+							(*It)->InputControl();
+							(*It)->Update(FrameTime);
+						}
+					}
 
-				else if (PartialExecutionState) {
-					if ((*It)->PartialExecuteObject) {
-						(*It)->InputControl();
+					else {
+						if ((*It)->FloatingSpecifiedDescriptor)
+							(*It)->InputControl();
 						(*It)->Update(FrameTime);
 					}
+				}
+
+				else {
+					(*It)->InputControl();
+					(*It)->Update(FrameTime);
 				}
 
 				(*It)->Render();
@@ -64,77 +60,95 @@ void FWM::Routine() {
 				++It;
 			}
 
-			if (PartialDeleteReserveState) {
-				PartialDeleteState = true;
-				break;
-			}
-
-			if (ReserveState) {
+			if (ModeSwitchReserveDescriptor) {
 				ModeSwitchState = true;
 				break;
 			}
 		}
 	}
 
-	if (PartialDeleteReserveState) {
-		RemovePartialObject();
-		PartialDeleteReserveState = false;
-	}
-
-	if (ReserveState) {
+	if (ModeSwitchReserveDescriptor) {
 		ChangeMode();
-		ReserveState = false;
+		ModeSwitchReserveDescriptor = false;
 	}
 }
 
+void FWM::Init(Function ModeFunction, Function Controller) {
+	if (RunningState)
+		return;
 
-void FWM::SwitchMode(Function ModeFunction) {
+	RunningMode = ModeFunction();
+
+	if(Controller)
+		Controller();
+
+	ControllerBackUpBuffer = Controller;
+
+	FLog.CurrentMode = RunningMode;
+	FLog.Log(LogType::FWL_INIT);
+
+	RunningState = true;
+}
+
+void FWM::SwitchMode(Function ModeFunction, Function Controller) {
 	if (!RunningState)
 		return;
 
-	Buffer = ModeFunction;
+	ModeFunctionBuffer = ModeFunction;
+	ControllerBuffer = Controller;
+	ControllerBackUpBuffer = Controller;
+
 	FLog.PrevMode = RunningMode;
 
-	ReserveState = true;
+	ModeSwitchReserveDescriptor = true;
 }
 
-void FWM::StartPartialExecution() {
-	if (PartialExecutionState)
+void FWM::StartFloatingMode(Function ModeFunction, Function Controller, bool FloatingOnlyOption) {
+	if (!RunningState || FloatingModeRunningState)
 		return;
 
-	PartialExecutionState = true;
-	FLog.IsPartialExecutionState = PartialExecutionState;
-	FLog.Log(LogType::EVENT_PARTIAL_EXECUTION);
+	ModeFunctionBuffer = ModeFunction;
+
+	FLog.PrevMode = RunningMode;
+
+	FloatingModeReserveDescriptor = true;
+	ModeSwitchReserveDescriptor = true;
+
+	if (FloatingOnlyOption)
+		FloatingOnlyState = true;
+
+	FLog.IsOnlyFloating = FloatingOnlyState;
 }
 
-void FWM::StopPartialExecution() {
-	if (!PartialExecutionState)
+void FWM::EndFloatingMode() {
+	if (!RunningState || !FloatingModeRunningState)
 		return;
 
-	PartialExecutionState = false;
-	FLog.IsPartialExecutionState = PartialExecutionState;
-	FLog.Log(LogType::EVENT_PARTIAL_EXECUTION);
+	FLog.PrevMode = RunningMode;
+
+	FloatingModeEndReserveDescriptor = true;
+	ModeSwitchReserveDescriptor = true;
 }
 
-void FWM::ClearPartialObject() {
-	PartialDeleteReserveState = true;
+void FWM::ResetControlState(OBJ_BASE* Object) {
+	Object->ResetControlState();
 }
 
-void FWM::AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool PartialExecutionOpt) {
+void FWM::AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool SetFloatingObject) {
 	Container[static_cast<int>(AddLayer)].push_back(Object);
 	Object->ObjectTag = Tag;
 
 	FLog.ObjectTag = Tag;
 	FLog.Log(LogType::ADD_OBJECT);
 
-	if (PartialExecutionOpt) {
-		Object->PartialExecuteObject = true;
-		FLog.Log(LogType::SET_NO_STOP_AT_PARTIAL_EXECUTION);
+	if (SetFloatingObject) {
+		Object->FloatingSpecifiedDescriptor = true;
+		FLog.Log(LogType::SET_FLOATING_OBJECT);
 	}
 }
 
 void FWM::DeleteSelf(OBJ_BASE* Object) {
-	Object->DeleteFlag = true;
+	Object->ObjectDeleteDescriptor = true;
 
 	FLog.ObjectTag = Object->ObjectTag;
 	FLog.Log(LogType::DELETE_OBJECT);
@@ -150,7 +164,7 @@ void FWM::DeleteObject(std::string Tag, DeleteRange deleteRange, SearchRange sea
 		case DeleteRange::One:
 			for (auto& It : Container[layer]) {
 				if (It->ObjectTag == Tag) {
-					It->DeleteFlag = true;
+					It->ObjectDeleteDescriptor = true;
 
 					FLog.ObjectTag = It->ObjectTag;
 					FLog.Log(LogType::DELETE_OBJECT);
@@ -162,7 +176,7 @@ void FWM::DeleteObject(std::string Tag, DeleteRange deleteRange, SearchRange sea
 		case DeleteRange::All:
 			for (auto& It : Container[layer]) {
 				if (It->ObjectTag == Tag) {
-					It->DeleteFlag = true;
+					It->ObjectDeleteDescriptor = true;
 
 					FLog.ObjectTag = It->ObjectTag;
 					FLog.Log(LogType::DELETE_OBJECT);
@@ -178,7 +192,7 @@ void FWM::DeleteObject(std::string Tag, DeleteRange deleteRange, SearchRange sea
 			for (auto& A : Container) {
 				for (auto& It : A) {
 					if (It->ObjectTag == Tag) {
-						It->DeleteFlag = true;
+						It->ObjectDeleteDescriptor = true;
 
 						FLog.ObjectTag = It->ObjectTag;
 						FLog.Log(LogType::DELETE_OBJECT);
@@ -192,7 +206,7 @@ void FWM::DeleteObject(std::string Tag, DeleteRange deleteRange, SearchRange sea
 			for (auto& A : Container) {
 				for (auto& It : A) {
 					if (It->ObjectTag == Tag) {
-						It->DeleteFlag = true;
+						It->ObjectDeleteDescriptor = true;
 
 						FLog.ObjectTag = It->ObjectTag;
 						FLog.Log(LogType::DELETE_OBJECT);
@@ -246,12 +260,10 @@ size_t FWM::Size(Layer TargetLayer) {
 	return Container[static_cast<int>(TargetLayer)].size();
 }
 
-
-
 //////// private ///////////////
 
 bool FWM::CheckDeleteFlag(std::deque<OBJ_BASE*>::iterator& It, int Layer) {
-	if ((*It)->DeleteFlag) {
+	if ((*It)->ObjectDeleteDescriptor) {
 		delete* It;
 		*It = nullptr;
 		It = Container[Layer].erase(It);
@@ -261,10 +273,45 @@ bool FWM::CheckDeleteFlag(std::deque<OBJ_BASE*>::iterator& It, int Layer) {
 }
 
 void FWM::ChangeMode() {
-	ClearAll();
+	if (FloatingModeReserveDescriptor) {
+		PrevRunningMode = RunningMode;
+		RunningMode = ModeFunctionBuffer();
 
-	RunningMode = Buffer();
-	Buffer = nullptr;
+		if(ControllerBuffer)
+			ControllerBuffer();
+
+		FloatingModeRunningState = true;
+
+		FLog.CurrentMode = RunningMode;
+		FLog.Log(LogType::START_FLOATING_MODE);
+	}
+
+	if (FloatingModeEndReserveDescriptor) {
+		ClearFloatingObject();
+		RunningMode = PrevRunningMode;
+
+		if(ControllerBackUpBuffer)
+			ControllerBackUpBuffer();
+
+		FloatingModeRunningState = false;
+		FloatingOnlyState = false;
+
+		FLog.CurrentMode = RunningMode;
+		FLog.Log(LogType::END_FLOATING_MODE);
+	}
+	
+	if(!FloatingModeReserveDescriptor && !FloatingModeEndReserveDescriptor) {
+		ClearAll();
+		RunningMode = ModeFunctionBuffer();
+
+		if(ControllerBuffer)
+			ControllerBuffer();
+
+		FLog.CurrentMode = RunningMode;
+		FloatingOnlyState = false;
+	}
+
+	FLog.IsOnlyFloating = FloatingOnlyState;
 
 	if (FLog.CurrentMode == FLog.PrevMode)
 		FLog.ErrorLog(LogType::ERROR_SAME_MODE);
@@ -272,15 +319,15 @@ void FWM::ChangeMode() {
 	FLog.CurrentMode = RunningMode;
 	FLog.Log(LogType::MODE_SWITCH);
 
+	FloatingModeReserveDescriptor = false;
+	FloatingModeEndReserveDescriptor = false;
 	ModeSwitchState = false;
 }
 
-void FWM::RemovePartialObject() {
-	using namespace std;
-	
+void FWM::ClearFloatingObject() {
 	for (int i = 0; i < Num; ++i) {
 		for (auto It = begin(Container[i]); It != end(Container[i]);) {
-			if ((*It)->PartialExecuteObject) {
+			if ((*It)->FloatingSpecifiedDescriptor) {
 				delete* It;
 				*It = nullptr;
 				It = Container[i].erase(It);
@@ -290,13 +337,6 @@ void FWM::RemovePartialObject() {
 			++It;
 		}
 	}
-
-	PartialExecutionState = false;
-	PartialDeleteState = false;
-
-	FLog.IsPartialExecutionState = PartialExecutionState;
-	FLog.Log(LogType::EVENT_PARTIAL_EXECUTION);
-	FLog.Log(LogType::DELETE_PARTIAL_EXECUTION_OBJECT);
 }
 
 void FWM::ClearAll() {
