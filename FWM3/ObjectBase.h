@@ -1,17 +1,15 @@
 #pragma once
 #include <string>
-// include headers you need here
 
 class OBJ_BASE {
 public:
-	bool ObjectDeleteDescriptor{};
-	bool FloatingSpecifiedDescriptor{};
+	bool DeleteDescriptor{};
+	bool FloatingDescriptor{};
 	std::string ObjectTag{};
 
 	virtual void Update(float FT) {}
-	virtual void InputControl() {}
 	virtual void Render() {}
-	virtual void ResetControlState() {}
-
-	virtual ~OBJ_BASE() {}
 };
+
+// dummy object for avoiding iterator error
+class FWM_DUMMY : public OBJ_BASE {};

@@ -6,6 +6,7 @@
 #include <deque>
 #include <ranges>
 #include <algorithm>
+#include <map>
 
 typedef std::string(*Function)(void);
 typedef void(*ControllerFunction)(void);
@@ -21,15 +22,16 @@ enum class SearchRange
 class FWM {
 private:
 	std::array<std::deque<OBJ_BASE*>, Num> Container;
+	std::map<std::string, OBJ_BASE*> ObjectList;
 
 	std::string						  RunningMode{};
 	std::string                       PrevRunningMode{};
 
-	bool							  RunningState{};
-	bool							  ModeSwitchState{};
+	bool							  RunningActivateDescriptor{};
+	bool							  ModeSwitchingDescriptor{};
 
-	bool							  FloatingModeRunningState{};
-	bool                              FloatingOnlyState{};
+	bool							  FloatingModeRunningDescriptor{};
+	bool                              FloatingOnlyDescriptor{};
 
 	bool							  ModeSwitchReserveDescriptor{};
 	bool                              FloatingModeReserveDescriptor{};
@@ -38,7 +40,7 @@ private:
 	float							  FrameTime{};
 
 	Function						  ModeFunctionBuffer{};
-	ControllerFunction			      ControllerBuffer{};
+	ControllerFunction				  ControllerBuffer{};
 	ControllerFunction				  ControllerBackUpBuffer{};
 
 public:
@@ -53,14 +55,15 @@ public:
 	void ResetControlState(OBJ_BASE* Object);
 	void AddObject(OBJ_BASE* Object, std::string Tag, Layer AddLayer, bool SetFloatingObject=false);
 	void DeleteSelf(OBJ_BASE* Object);
-	void DeleteObject(std::string Tag, DeleteRange deleteRange, SearchRange searchRange, Layer LayerToSearch);
-	OBJ_BASE* Find(std::string Tag, SearchRange searchRange, Layer LayerToSearch = Layer::L1);
+	void DeleteObject(std::string Tag, DeleteRange deleteRange);
+	OBJ_BASE* Find(std::string Tag);
 	OBJ_BASE* Find(std::string Tag, Layer LayerToSearch, int Index);
 	size_t Size(Layer TargetLayer);
 
 private:
-	bool CheckDeleteFlag(std::deque<OBJ_BASE*>::iterator& It, int Layer);
+	void ClearDeleteTargetObject(int i);
 	void ChangeMode();
 	void ClearFloatingObject();
 	void ClearAll();
 };
+extern FWM fw;
